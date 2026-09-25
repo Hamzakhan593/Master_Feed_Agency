@@ -1,0 +1,77 @@
+@page
+@model Master_Feed_Agency.Pages.Reports.StockModel
+@{
+    ViewData["Title"] = "Stock Report";
+    var r = Model.Report;
+}
+
+<section class="repx-hero repx-hero-report">
+    <div class="repx-hero-copy">
+        <a asp-page="/Reports/Index" class="repx-back-link no-print">← Reports</a>
+        <div class="repx-eyebrow">STOCK KI POSITION</div>
+        <h1>Stock Report</h1>
+        <p>Chuni hui muddat mein product ki shuru quantity, aana jana aur aakhri stock dekhein.</p>
+        <div class="repx-hero-meta"><span>@Model.From?.ToString("dd MMM yyyy") – @Model.To?.ToString("dd MMM yyyy")</span><span>@Model.VisibleRows.Count products dikh rahe hain</span></div>
+    </div>
+    <div class="repx-hero-actions no-print">
+        <button type="button" class="btn repx-btn repx-btn-ghost" onclick="window.print()">Print / PDF Save Karein</button>
+        <a asp-page-handler="Csv" asp-route-From="@Model.From?.ToString("yyyy-MM-dd")" asp-route-To="@Model.To?.ToString("yyyy-MM-dd")" asp-route-LowStockOnly="@Model.LowStockOnly" class="btn repx-btn repx-btn-light">Excel Ke Liye CSV Download</a>
+    </div>
+</section>
+
+<form method="get" class="repx-filter-panel no-print">
+    <div class="repx-filter-heading"><div><span class="repx-section-kicker">STOCK FILTERS</span><strong>Tareekh Chunein</strong></div><span>Sirf kam stock wale products dekhne ke liye option select karein.</span></div>
+    <div class="repx-filter-grid repx-filter-grid-stock">
+        <div><label asp-for="From">Shuru Tareekh</label><input asp-for="From" type="date" class="form-control" /></div>
+        <div><label asp-for="To">Aakhri Tareekh</label><input asp-for="To" type="date" class="form-control" /></div>
+        <label class="repx-check-card"><input asp-for="LowStockOnly" class="form-check-input" /><span><strong>Sirf Kam Stock</strong><small>Minimum limit ya us se kam stock dikhayein.</small></span></label>
+        <div class="repx-filter-actions"><button class="btn repx-btn repx-btn-primary" type="submit">Report Dekhein</button></div>
+    </div>
+</form>
+
+<div class="repx-kpi-grid repx-kpi-grid-3">
+    <div class="repx-kpi repx-kpi-primary"><span class="repx-kpi-icon">AP</span><div><span>Active Products</span><strong>@r.ActiveProducts</strong><small>Business mein use hone wale products</small></div></div>
+    <div class="repx-kpi repx-kpi-warning"><span class="repx-kpi-icon">LS</span><div><span>Kam Stock</span><strong>@r.LowStockCount</strong><small>Minimum limit ya us se kam</small></div></div>
+    <div class="repx-kpi repx-kpi-purple"><span class="repx-kpi-icon">SV</span><div><span>Aakhri Stock Ki Sale Value</span><strong>Rs. @r.StockValueAtSaleRate.ToString("N0")</strong><small>Aakhri quantity aur default sale rate ke mutabiq</small></div></div>
+</div>
+
+<section class="repx-panel">
+    <div class="repx-panel-head"><div><span class="repx-section-kicker">STOCK LIST</span><h2>Product Stock Ki Tafseel</h2><p>Shuru stock + stock in - stock out = aakhri stock.</p></div><span class="repx-panel-chip">@Model.VisibleRows.Count product(s)</span></div>
+    <div class="table-responsive">
+        <table class="table repx-table mb-0">
+            <thead><tr><th>Product</th><th class="text-end">Shuru</th><th class="text-end">Aaya</th><th class="text-end">Gaya</th><th class="text-end">Aakhri</th><th class="text-end">Minimum Limit</th><th class="text-end">Sale Value</th><th>Status</th></tr></thead>
+            <tbody>
+            @foreach (var row in Model.VisibleRows)
+            {
+                <tr>
+                    <td><a asp-page="/Products/History" asp-route-id="@row.ProductId" class="repx-reference">@row.Name</a><small>@row.Code · @row.Unit</small></td>
+                    <td class="text-end">@row.OpeningStock.ToString("0.###")</td>
+                    <td class="text-end text-success">@row.QuantityIn.ToString("0.###")</td>
+                    <td class="text-end text-danger">@row.QuantityOut.ToString("0.###")</td>
+                    <td class="text-end repx-money">@row.ClosingStock.ToString("0.###")</td>
+                    <td class="text-end">@row.LowStockThreshold.ToString("0.###")</td>
+                    <td class="text-end">Rs. @row.SaleValue.ToString("N2")</td>
+                    <td>
+                        @if (!row.IsActive)
+                        {
+                            <span class="repx-status is-neutral">Inactive</span>
+                        }
+                        else if (row.ClosingStock <= row.LowStockThreshold)
+                        {
+                            <span class="repx-status is-warning">Kam Stock</span>
+                        }
+                        else
+                        {
+                            <span class="repx-status is-success">Theek</span>
+                        }
+                    </td>
+                </tr>
+            }
+            @if (Model.VisibleRows.Count == 0)
+            {
+                <tr><td colspan="8" class="repx-empty">Is filter mein koi product nahi mila.</td></tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

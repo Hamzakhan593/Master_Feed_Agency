@@ -1,0 +1,37 @@
+{
+  "name": "Master Feed Agency Management System",
+  "short_name": "Master Feed",
+  "description": "Sales, payments, customers and stock.",
+  "start_url": "/Dashboard/Index",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#dfe3d9",
+  "theme_color": "#226348",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icons/brand.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nayi Sale",
+      "url": "/Sales/Create"
+    },
+    {
+      "name": "Payment Wasool Karein",
+      "url": "/Payments/Create"
+    },
+    {
+      "name": "Customers",
+      "url": "/Customers"
+    },
+    {
+      "name": "Reports",
+      "url": "/Reports"
+    }
+  ]
+}

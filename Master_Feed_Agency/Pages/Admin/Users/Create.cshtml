@@ -1,0 +1,100 @@
+@page
+@model Master_Feed_Agency.Pages.Admin.Users.CreateModel
+@{
+    ViewData["Title"] = "Staff Account Banayein";
+}
+
+<div class="usrx-page usrx-form-page">
+    <section class="usrx-compact-hero">
+        <div>
+            <a asp-page="Index" class="usrx-back-link">← Staff / Access</a>
+            <div class="usrx-eyebrow">Administration · New Account</div>
+            <h1>Staff Account Banayein</h1>
+            <p>Create a secure account and start with the default permissions for the selected role.</p>
+        </div>
+    </section>
+
+    <div class="usrx-form-grid">
+        <section class="usrx-form-card">
+            <header class="usrx-form-head">
+                <div class="usrx-form-icon">U</div>
+                <div><span>Account details</span><h2>Staff identity & role</h2></div>
+            </header>
+
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger usrx-validation"></div>
+
+                <div class="usrx-field-grid">
+                    <div class="usrx-field usrx-field-wide">
+                        <label asp-for="Input.FullName" class="form-label"></label>
+                        <input asp-for="Input.FullName" class="form-control" placeholder="e.g. Ali Ahmed" autocomplete="name" />
+                        <span asp-validation-for="Input.FullName" class="text-danger"></span>
+                        <small>Staff ka naam bills aur receipts par nazar aayega.</small>
+                    </div>
+
+                    <div class="usrx-field usrx-field-wide">
+                        <label asp-for="Input.Email" class="form-label"></label>
+                        <input asp-for="Input.Email" class="form-control" placeholder="user@masterfeed.local" autocomplete="off" />
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        <small>This email is used to sign in.</small>
+                    </div>
+
+                    <div class="usrx-field usrx-field-wide">
+                        <label asp-for="Input.Role" class="form-label"></label>
+                        <select asp-for="Input.Role" asp-items="Model.RoleOptions" class="form-select" id="roleSelect"></select>
+                        <span asp-validation-for="Input.Role" class="text-danger"></span>
+                        <small>Role permissions can be customized after the account is created.</small>
+                    </div>
+
+                    <div class="usrx-field">
+                        <label asp-for="Input.Password" class="form-label"></label>
+                        <input asp-for="Input.Password" class="form-control" autocomplete="new-password" placeholder="Temporary password" />
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="usrx-field">
+                        <label asp-for="Input.ConfirmPassword" class="form-label"></label>
+                        <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" placeholder="Repeat password" />
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <label class="usrx-switch-card" for="Input_MustChangePassword">
+                    <span class="usrx-switch-copy">
+                        <strong>Require password change at next sign-in</strong>
+                        <small>Recommended for temporary passwords issued by an administrator.</small>
+                    </span>
+                    <span class="form-check form-switch m-0">
+                        <input asp-for="Input.MustChangePassword" class="form-check-input" />
+                    </span>
+                </label>
+
+                <div class="usrx-form-actions">
+                    <a asp-page="Index" class="btn btn-outline-secondary">Wapas Jayein</a>
+                    <button type="submit" class="btn btn-primary">Staff Account Banayein</button>
+                </div>
+            </form>
+        </section>
+
+        <aside class="usrx-side-stack">
+            <section class="usrx-side-card">
+                <div class="usrx-side-label">Role guide</div>
+                <h3>Choose the closest job role</h3>
+                <div class="usrx-role-guide">
+                    <div><span class="usrx-dot usrx-dot-owner"></span><strong>Owner</strong><small>Full business and administration access</small></div>
+                    <div><span class="usrx-dot usrx-dot-manager"></span><strong>Manager</strong><small>Operations, sales, stock and reports</small></div>
+                    <div><span class="usrx-dot usrx-dot-accountant"></span><strong>Accountant</strong><small>Customer khata, payments aur reports</small></div>
+                    <div><span class="usrx-dot usrx-dot-salesman"></span><strong>Salesman</strong><small>Sales, customers and recovery tasks</small></div>
+                </div>
+            </section>
+
+            <section class="usrx-side-card usrx-side-card-soft">
+                <div class="usrx-side-label">Security</div>
+                <h3>Staff Ki Ijazat</h3>
+                <p>Har staff member ka apna account banayein aur sirf zaroori access dein.</p>
+            </section>
+        </aside>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

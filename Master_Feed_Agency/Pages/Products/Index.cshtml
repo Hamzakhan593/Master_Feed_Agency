@@ -1,0 +1,203 @@
+@page
+@model Master_Feed_Agency.Pages.Products.IndexModel
+@{
+    ViewData["Title"] = "Products / Stock";
+    var activeCount = Model.Products.Count(x => x.IsActive);
+    var inactiveCount = Model.Products.Count - activeCount;
+    var lowStockCount = Model.Products.Count(x => x.IsActive && x.IsLowStock);
+    var visibleStockValue = Model.Products.Sum(x => Math.Max(0m, x.CurrentStock) * x.DefaultSalePrice);
+}
+
+<div class="product-page">
+    @if (TempData["SuccessMessage"] is string success)
+    {
+        <div class="alert alert-success product-flash-alert">@success</div>
+    }
+    @if (TempData["ErrorMessage"] is string error)
+    {
+        <div class="alert alert-danger product-flash-alert">@error</div>
+    }
+
+    <section class="product-page-header">
+        <div class="product-page-heading">
+            <span class="product-page-kicker">Products / Stock</span>
+            <h1>Products / Stock</h1>
+            <p>Product ki qeemat dekhein, naya stock add karein aur available maal check karein.</p>
+        </div>
+        <div class="product-page-actions">
+            <a asp-page="/Reports/Stock" class="btn btn-light product-header-btn">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2" /></svg>
+                Stock Report
+            </a>
+            @if (User.HasPermission(AppPermissions.ManageProducts))
+            {
+                <a asp-page="Create" class="btn btn-primary product-header-btn product-header-primary">
+                    <span class="product-btn-plus">+</span> Product Add Karein
+                </a>
+            }
+        </div>
+    </section>
+
+    <section class="product-stat-grid" aria-label="Inventory summary">
+        <div class="product-stat-card">
+            <span class="product-stat-icon is-blue">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 8-9 5-9-5M3 8l9-5 9 5v8l-9 5-9-5V8Z" /><path d="M12 13v8" /></svg>
+            </span>
+            <div><span>Visible products</span><strong>@Model.Products.Count</strong><small>Matching current filters</small></div>
+        </div>
+        <div class="product-stat-card">
+            <span class="product-stat-icon is-green">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg>
+            </span>
+            <div><span>Active</span><strong>@activeCount</strong><small>Available for transactions</small></div>
+        </div>
+        <div class="product-stat-card">
+            <span class="product-stat-icon is-amber">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9v4M12 17h.01" /><path d="M10.3 3.7 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z" /></svg>
+            </span>
+            <div><span>Low stock</span><strong>@lowStockCount</strong><small>At or below threshold</small></div>
+        </div>
+        <div class="product-stat-card">
+            <span class="product-stat-icon is-violet">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+            </span>
+            <div><span>Stock value</span><strong>Rs. @visibleStockValue.ToString("N0")</strong><small>Visible stock at sale rate</small></div>
+        </div>
+    </section>
+
+    <section class="product-filter-panel">
+        <form method="get" class="product-filter-grid">
+            <div class="product-filter-search">
+                <label asp-for="Search">Product Search Karein</label>
+                <div class="product-search-control">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+                    <input asp-for="Search" class="form-control" placeholder="Product ka naam ya code" />
+                </div>
+            </div>
+            <div>
+                <label asp-for="Status">Status</label>
+                <select asp-for="Status" class="form-select">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="all">All products</option>
+                </select>
+            </div>
+            <div class="product-low-stock-filter">
+                <span>Stock Filter</span>
+                <label class="product-check-card" for="LowStockOnly">
+                    <input asp-for="LowStockOnly" class="form-check-input" />
+                    <span><strong>Low stock only</strong><small>Show products at or below threshold</small></span>
+                </label>
+            </div>
+            <div class="product-filter-action">
+                <button class="btn btn-primary" type="submit">Search Karein</button>
+                <a asp-page="Index" class="btn btn-light">Filter Hataein</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="product-list-panel">
+        <div class="product-list-heading">
+            <div>
+                <span class="product-section-kicker">Products</span>
+                <h2>Product list</h2>
+            </div>
+            <div class="product-list-meta">
+                @if (inactiveCount > 0)
+                {
+                    <span class="product-list-note">@inactiveCount inactive in view</span>
+                }
+                <span class="product-list-count">@Model.Products.Count record(s)</span>
+            </div>
+        </div>
+
+        <div class="table-responsive product-table-wrap">
+            <table class="table product-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Unit</th>
+                        <th class="text-end">Sale Price</th>
+                        <th>Available Stock</th>
+                        <th>Status</th>
+                        <th class="text-end">Kaam</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (Model.Products.Count == 0)
+                {
+                    <tr>
+                        <td colspan="6">
+                            <div class="product-empty-state">
+                                <span class="product-empty-icon">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 8-9 5-9-5M3 8l9-5 9 5v8l-9 5-9-5V8Z" /><path d="M12 13v8" /></svg>
+                                </span>
+                                <strong>No products found</strong>
+                                <span>Change the filters or add a new product.</span>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var item in Model.Products)
+                    {
+                        var stockPercent = item.LowStockThreshold > 0m
+                            ? Math.Max(0m, Math.Min(100m, (item.CurrentStock / item.LowStockThreshold) * 100m))
+                            : (item.CurrentStock > 0m ? 100m : 0m);
+                        var stockPercentCss = stockPercent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+                        var stockState = item.CurrentStock < 0m ? "is-negative" : item.IsLowStock ? "is-low" : "is-healthy";
+                        <tr class="@(item.IsActive ? null : "is-inactive")">
+                            <td>
+                                <div class="product-name-cell">
+                                    <span class="product-box-icon">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 8-9 5-9-5M3 8l9-5 9 5v8l-9 5-9-5V8Z" /><path d="M12 13v8" /></svg>
+                                    </span>
+                                    <div>
+                                        <a asp-page="History" asp-route-id="@item.Id" class="product-name-link">@item.Name</a>
+                                        <div class="product-code-line">
+                                            <span>@item.Code</span>
+                                            @if (item.PurchaseCost.HasValue && User.HasPermission(AppPermissions.ManageProducts))
+                                            {
+                                                <small>Cost Rs. @item.PurchaseCost.Value.ToString("N2")</small>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="product-unit-chip">@item.Unit</span></td>
+                            <td class="text-end"><div class="product-price-cell"><strong>Rs. @item.DefaultSalePrice.ToString("N2")</strong><span>default rate</span></div></td>
+                            <td>
+                                <div class="product-stock-cell @stockState">
+                                    <div class="product-stock-top">
+                                        <strong>@item.CurrentStock.ToString("0.###") @item.Unit</strong>
+                                        <span>@(item.CurrentStock < 0m ? "Negative" : item.IsLowStock ? "Low" : "Stock Maujood Hai")</span>
+                                    </div>
+                                    <div class="product-stock-track"><span style="width:@stockPercentCss%"></span></div>
+                                    <small>Threshold @item.LowStockThreshold.ToString("0.###") @item.Unit</small>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="product-status-badge @(item.IsActive ? "is-active" : "is-inactive")"><span></span>@(item.IsActive ? "Active" : "Inactive")</span>
+                            </td>
+                            <td class="text-end">
+                                <div class="product-row-actions">
+                                    <a asp-page="History" asp-route-id="@item.Id" class="btn btn-sm btn-light">Stock Record</a>
+                                    @if (User.HasPermission(AppPermissions.AdjustStock))
+                                    {
+                                        <a asp-page="Adjust" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Stock Add / Correct</a>
+                                    }
+                                    @if (User.HasPermission(AppPermissions.ManageProducts))
+                                    {
+                                        <a asp-page="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Details Badlein</a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>

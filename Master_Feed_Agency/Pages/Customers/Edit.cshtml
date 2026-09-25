@@ -1,0 +1,70 @@
+@page "{id:int}"
+@model Master_Feed_Agency.Pages.Customers.EditModel
+@{
+    ViewData["Title"] = "Customer Details Badlein";
+}
+
+<div class="customer-page customer-form-page customer-page--edit">
+    <section class="customer-page-header customer-form-header">
+        <div class="customer-page-heading">
+            <span class="customer-page-kicker">Customers</span>
+            <h1>Customer Details Badlein</h1>
+            <p>Zaroori customer details aur future udhaar settings update karein.</p>
+        </div>
+        <div class="customer-page-actions">
+            <a asp-page="Details" asp-route-id="@Model.Input.Id" class="btn btn-light customer-header-btn">Customer Profile</a>
+        </div>
+    </section>
+
+    <div class="customer-protected-banner">
+        <span class="customer-protected-icon">✓</span>
+        <div><strong>Shuru ka baqaya protected hai</strong><span>Rs. @Model.OpeningBalance.ToString("N2") khata mein saved hai aur yahan se change nahi hoga.</span></div>
+    </div>
+
+    <form method="post" class="customer-form-layout customer-form-layout--simple">
+        <input asp-for="Input.Id" type="hidden" />
+
+        <div class="customer-form-main">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger customer-form-alert"></div>
+
+            <section class="customer-panel customer-form-panel customer-form-panel--basic">
+                <div class="customer-panel-header"><div><span class="customer-section-kicker">Basic details</span><h2>Customer information</h2></div></div>
+                <div class="customer-panel-body">
+                    <div class="row g-3">
+                        <div class="col-md-6"><label asp-for="Input.Name" class="form-label"></label><input asp-for="Input.Name" class="form-control" /><span asp-validation-for="Input.Name" class="text-danger"></span></div>
+                        <div class="col-md-6"><label asp-for="Input.BusinessName" class="form-label"></label><input asp-for="Input.BusinessName" class="form-control" /><span asp-validation-for="Input.BusinessName" class="text-danger"></span></div>
+                        <div class="col-md-6"><label asp-for="Input.Phone" class="form-label"></label><input asp-for="Input.Phone" class="form-control" /><span asp-validation-for="Input.Phone" class="text-danger"></span></div>
+                        <div class="col-md-6"><label asp-for="Input.Area" class="form-label"></label><input asp-for="Input.Area" class="form-control" /></div>
+                        <div class="col-12"><label asp-for="Input.Address" class="form-label"></label><textarea asp-for="Input.Address" class="form-control" rows="2"></textarea></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="customer-panel customer-form-panel customer-form-panel--credit">
+                <div class="customer-panel-header"><div><span class="customer-section-kicker">Khata setup</span><h2>Udhaar settings</h2><p>Ye settings future sales ke liye hain.</p></div></div>
+                <div class="customer-panel-body">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4"><label asp-for="Input.CreditLimit" class="form-label"></label><div class="input-group"><span class="input-group-text">Rs.</span><input asp-for="Input.CreditLimit" class="form-control" /></div><span asp-validation-for="Input.CreditLimit" class="text-danger"></span></div>
+                        <div class="col-md-4"><label asp-for="Input.DefaultCreditDays" class="form-label"></label><div class="input-group"><input asp-for="Input.DefaultCreditDays" class="form-control" /><span class="input-group-text">days</span></div><span asp-validation-for="Input.DefaultCreditDays" class="text-danger"></span></div>
+                        <div class="col-md-4">
+                            <label class="customer-toggle-card" for="Input_IsActive">
+                                <input asp-for="Input.IsActive" class="form-check-input" />
+                                <span><strong>Active customer</strong><small>Nayi sale allow karein</small></span>
+                            </label>
+                        </div>
+                        <div class="col-12"><label asp-for="Input.Notes" class="form-label"></label><textarea asp-for="Input.Notes" class="form-control" rows="2" placeholder="Optional note"></textarea></div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="customer-form-actions">
+                <a asp-page="Details" asp-route-id="@Model.Input.Id" class="btn btn-light">Wapas Jayein</a>
+                <button type="submit" class="btn btn-primary">Tabdeeliyan Save Karein</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

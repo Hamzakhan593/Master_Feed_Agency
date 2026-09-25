@@ -1,0 +1,171 @@
+@page
+@model Master_Feed_Agency.Pages.Admin.Users.IndexModel
+@{
+    ViewData["Title"] = "Staff / Access";
+    var totalUsers = Model.Users.Count;
+    var activeUsers = Model.Users.Count(x => x.IsActive);
+    var disabledUsers = totalUsers - activeUsers;
+    var ownerCount = Model.Users.Count(x => string.Equals(x.Role, AppRoles.Owner, StringComparison.OrdinalIgnoreCase));
+    var managerCount = Model.Users.Count(x => string.Equals(x.Role, AppRoles.Manager, StringComparison.OrdinalIgnoreCase));
+    var accountantCount = Model.Users.Count(x => string.Equals(x.Role, AppRoles.Accountant, StringComparison.OrdinalIgnoreCase));
+    var salesmanCount = Model.Users.Count(x => string.Equals(x.Role, AppRoles.Salesman, StringComparison.OrdinalIgnoreCase));
+}
+
+<div class="usrx-page">
+    <section class="usrx-hero">
+        <div>
+            <div class="usrx-eyebrow">Administration · Access Control</div>
+            <h1>Staff / Access</h1>
+            <p>Manage staff accounts, roles, permissions and account status without losing transaction history.</p>
+        </div>
+        <div class="usrx-hero-actions">
+            <a asp-page="Create" class="btn btn-primary usrx-hero-primary">
+                <span class="usrx-btn-plus">+</span>
+                Staff Account Banayein
+            </a>
+        </div>
+    </section>
+
+    @if (TempData["SuccessMessage"] is string success)
+    {
+        <div class="alert alert-success usrx-alert" role="alert">@success</div>
+    }
+    @if (TempData["ErrorMessage"] is string error)
+    {
+        <div class="alert alert-danger usrx-alert" role="alert">@error</div>
+    }
+
+    <section class="usrx-kpi-grid" aria-label="User summary">
+        <article class="usrx-kpi usrx-kpi-blue">
+            <div class="usrx-kpi-icon">US</div>
+            <div><span>Total users</span><strong>@totalUsers</strong><small>Accounts in the system</small></div>
+        </article>
+        <article class="usrx-kpi usrx-kpi-green">
+            <div class="usrx-kpi-icon">ON</div>
+            <div><span>Active</span><strong>@activeUsers</strong><small>Can sign in normally</small></div>
+        </article>
+        <article class="usrx-kpi usrx-kpi-red">
+            <div class="usrx-kpi-icon">OFF</div>
+            <div><span>Disabled</span><strong>@disabledUsers</strong><small>Access currently blocked</small></div>
+        </article>
+        <article class="usrx-kpi usrx-kpi-violet">
+            <div class="usrx-kpi-icon">RL</div>
+            <div><span>Roles in use</span><strong>@Model.Users.Select(x => x.Role).Distinct(StringComparer.OrdinalIgnoreCase).Count()</strong><small>Staff ke kaam ke mutabiq access</small></div>
+        </article>
+    </section>
+
+    <section class="usrx-role-strip" aria-label="Role distribution">
+        <div class="usrx-role-chip usrx-role-owner"><span>Owner</span><strong>@ownerCount</strong></div>
+        <div class="usrx-role-chip usrx-role-manager"><span>Manager</span><strong>@managerCount</strong></div>
+        <div class="usrx-role-chip usrx-role-accountant"><span>Accountant</span><strong>@accountantCount</strong></div>
+        <div class="usrx-role-chip usrx-role-salesman"><span>Salesman</span><strong>@salesmanCount</strong></div>
+    </section>
+
+    <section class="usrx-panel">
+        <header class="usrx-panel-head">
+            <div>
+                <div class="usrx-panel-kicker">Account directory</div>
+                <h2>Staff access</h2>
+                <p>Every account keeps its identity and history even when access is disabled.</p>
+            </div>
+            <div class="usrx-panel-summary">@activeUsers active of @totalUsers</div>
+        </header>
+
+        @if (Model.Users.Count == 0)
+        {
+            <div class="usrx-empty">
+                <div class="usrx-empty-icon">U</div>
+                <h3>No users found</h3>
+                <p>Create the first staff account and assign a role to begin.</p>
+                <a asp-page="Create" class="btn btn-primary">Staff Account Banayein</a>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive usrx-table-wrap">
+                <table class="table usrx-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Permissions</th>
+                            <th class="text-end">Access controls</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var user in Model.Users)
+                    {
+                        var initial = string.IsNullOrWhiteSpace(user.FullName) ? "U" : user.FullName[..1].ToUpperInvariant();
+                        var roleClass = user.Role switch
+                        {
+                            "Owner" => "usrx-badge-owner",
+                            "Manager" => "usrx-badge-manager",
+                            "Accountant" => "usrx-badge-accountant",
+                            "Salesman" => "usrx-badge-salesman",
+                            _ => "usrx-badge-neutral"
+                        };
+
+                        <tr>
+                            <td>
+                                <div class="usrx-person">
+                                    <div class="usrx-avatar">@initial</div>
+                                    <div class="usrx-person-copy">
+                                        <strong>@user.FullName</strong>
+                                        <span>@user.Email</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="usrx-role-badge @roleClass">@user.Role</span></td>
+                            <td>
+                                @if (user.IsActive)
+                                {
+                                    <span class="usrx-status usrx-status-active"><i></i>Active</span>
+                                }
+                                else
+                                {
+                                    <span class="usrx-status usrx-status-disabled"><i></i>Disabled</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="usrx-permission-count">
+                                    <strong>@user.PermissionCount</strong>
+                                    <span>granted</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="usrx-actions">
+                                    <a asp-page="Permissions" asp-route-id="@user.Id" class="btn btn-sm btn-outline-primary">Permissions</a>
+                                    <a asp-page="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-outline-secondary">Details Badlein</a>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light usrx-more-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Aur</button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm usrx-menu">
+                                            <li><a class="dropdown-item" asp-page="ResetPassword" asp-route-id="@user.Id">Reset password</a></li>
+                                            <li><hr class="dropdown-divider" /></li>
+                                            <li>
+                                                <form method="post" asp-page-handler="ToggleStatus" asp-route-id="@user.Id" class="m-0">
+                                                    <button type="submit" class="dropdown-item @(user.IsActive ? "text-danger" : "text-success")">
+                                                        @(user.IsActive ? "Disable account" : "Enable account")
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <section class="usrx-security-note">
+        <div class="usrx-security-icon">✓</div>
+        <div>
+            <strong>Staff Ki Ijazat</strong>
+            <p>Roles provide defaults, individual permissions control sensitive server-side actions, and account changes are written to the kis ne kya kiya record.</p>
+        </div>
+    </section>
+</div>

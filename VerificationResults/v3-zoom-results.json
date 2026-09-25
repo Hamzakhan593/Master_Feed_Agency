@@ -1,0 +1,146 @@
+[
+  {
+    "width": 1920,
+    "zoom": 1,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 1920,
+    "zoom": 1.25,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 1920,
+    "zoom": 1.5,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 1920,
+    "zoom": 1.75,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 1440,
+    "zoom": 1,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 1440,
+    "zoom": 1.25,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 1440,
+    "zoom": 1.5,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 1440,
+    "zoom": 1.75,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 1366,
+    "zoom": 1,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 1366,
+    "zoom": 1.25,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 1366,
+    "zoom": 1.5,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 1366,
+    "zoom": 1.75,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 1024,
+    "zoom": 1,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 1024,
+    "zoom": 1.25,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 1024,
+    "zoom": 1.5,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 1024,
+    "zoom": 1.75,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 768,
+    "zoom": 1,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 768,
+    "zoom": 1.25,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 768,
+    "zoom": 1.5,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 768,
+    "zoom": 1.75,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 390,
+    "zoom": 1,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 390,
+    "zoom": 1.25,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 390,
+    "zoom": 1.5,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "width": 390,
+    "zoom": 1.75,
+    "overflow": false,
+    "bad": []
+  }
+]

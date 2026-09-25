@@ -1,0 +1,26 @@
+[Unit]
+Description=Master Feed Agency Management System
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/masterfeed/current
+ExecStart=/usr/bin/dotnet /opt/masterfeed/current/Master_Feed_Agency.dll
+Restart=always
+RestartSec=5
+KillSignal=SIGINT
+SyslogIdentifier=masterfeed
+User=masterfeed
+Group=masterfeed
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://127.0.0.1:5080
+# Put secrets in /etc/masterfeed/masterfeed.env with permissions 600.
+EnvironmentFile=-/etc/masterfeed/masterfeed.env
+
+# Basic service hardening. Review against any file-upload/backup paths you use.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

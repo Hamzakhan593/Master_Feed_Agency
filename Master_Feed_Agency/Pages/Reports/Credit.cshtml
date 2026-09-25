@@ -1,0 +1,470 @@
+@page
+@model Master_Feed_Agency.Pages.Reports.CreditModel
+
+@{
+    ViewData["Title"] = "Udhaar Report";
+    var r = Model.Report;
+}
+
+<section class="repx-hero repx-hero-report">
+
+    <div class="repx-hero-copy">
+
+        <a asp-page="/Reports/Index"
+           class="repx-back-link no-print">
+            ← Reports
+        </a>
+
+        <div class="repx-eyebrow">
+            UDHAAR KI POSITION
+        </div>
+
+        <h1>
+            Udhaar Report
+        </h1>
+
+        <p>
+            Dekhein kis customer par kitna baqaya hai,
+            aaj kya lena hai aur udhaar kitna purana hai.
+        </p>
+
+        <div class="repx-hero-meta">
+
+            <span>
+                @r.AsOfDate.ToString("dd MMM yyyy") tak ki position
+            </span>
+
+            <span>
+                @r.Summary.CustomerCount customers par baqaya
+            </span>
+
+        </div>
+
+    </div>
+
+    <div class="repx-hero-actions no-print">
+
+        <button type="button"
+                class="btn repx-btn repx-btn-ghost"
+                onclick="window.print()">
+            Print / PDF Save Karein
+        </button>
+
+        <a asp-page-handler="Csv"
+           asp-route-Search="@Model.Search"
+           asp-route-Aging="@Model.Aging"
+           class="btn repx-btn repx-btn-light">
+            Excel Ke Liye CSV Download
+        </a>
+
+    </div>
+
+</section>
+
+
+<form method="get"
+      class="repx-filter-panel no-print">
+
+    <div class="repx-filter-heading">
+
+        <div>
+            <span class="repx-section-kicker">
+                UDHAAR FILTERS
+            </span>
+
+            <strong>
+                Customer Ya Tareekh Se Search Karein
+            </strong>
+        </div>
+
+        <span>
+            Customer, phone ya bill/transaction reference se dhoondein.
+        </span>
+
+    </div>
+
+    <div class="repx-filter-grid repx-filter-grid-credit">
+
+        <div class="repx-filter-grow">
+
+            <label asp-for="Search">
+                Customer, phone ya reference
+            </label>
+
+            <input asp-for="Search"
+                   class="form-control"
+                   placeholder="Customer ka naam, phone ya bill number" />
+
+        </div>
+
+        <div>
+
+            <label asp-for="Aging">
+                Udhaar Ki Muddat
+            </label>
+
+            <select asp-for="Aging"
+                    class="form-select">
+
+                <option value="All">
+                    Sab
+                </option>
+
+                <option value="Current">
+                    Maujooda
+                </option>
+
+                <option value="Days1To7">
+                    1–7 din
+                </option>
+
+                <option value="Days8To30">
+                    8–30 din
+                </option>
+
+                <option value="Days31To60">
+                    31–60 din
+                </option>
+
+                <option value="Days60Plus">
+                    60+ din
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="repx-filter-actions">
+
+            <button class="btn repx-btn repx-btn-primary"
+                    type="submit">
+                Report Dekhein
+            </button>
+
+        </div>
+
+    </div>
+
+</form>
+
+
+<div class="repx-kpi-grid repx-kpi-grid-4">
+
+    <div class="repx-kpi repx-kpi-primary">
+
+        <span class="repx-kpi-icon">
+            UD
+        </span>
+
+        <div>
+            <span>Total Udhaar</span>
+
+            <strong>
+                Rs. @r.Summary.TotalOutstanding.ToString("N0")
+            </strong>
+
+            <small>
+                Kul maujooda baqaya
+            </small>
+        </div>
+
+    </div>
+
+
+    <div class="repx-kpi repx-kpi-warning">
+
+        <span class="repx-kpi-icon">
+            TD
+        </span>
+
+        <div>
+            <span>Aaj Ka Wajib Udhaar</span>
+
+            <strong>
+                Rs. @r.Summary.TodayDue.ToString("N0")
+            </strong>
+
+            <small>
+                Aaj leni wali raqam
+            </small>
+        </div>
+
+    </div>
+
+
+    <div class="repx-kpi repx-kpi-danger">
+
+        <span class="repx-kpi-icon">
+            OD
+        </span>
+
+        <div>
+            <span>Muddat Guzar Gayi</span>
+
+            <strong>
+                Rs. @r.Summary.Overdue.ToString("N0")
+            </strong>
+
+            <small>
+                Payment date guzar gayi
+            </small>
+        </div>
+
+    </div>
+
+
+    <div class="repx-kpi repx-kpi-neutral">
+
+        <span class="repx-kpi-icon">
+            CU
+        </span>
+
+        <div>
+            <span>Customers</span>
+
+            <strong>
+                @r.Summary.CustomerCount
+            </strong>
+
+            <small>
+                Jin par baqaya raqam hai
+            </small>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="repx-aging-strip">
+
+    <div class="repx-aging-head">
+
+        <div>
+
+            <span class="repx-section-kicker">
+                UDHAAR KI MUDDAT
+            </span>
+
+            <strong>
+                Udhaar Kitne Din Se Baqi Hai
+            </strong>
+
+        </div>
+
+        <span>
+            Dekhein baqaya raqam ko kitne din ho gaye.
+        </span>
+
+    </div>
+
+
+    <div class="repx-aging-grid">
+
+        @foreach (var bucket in r.Aging)
+        {
+            var label = bucket.Bucket switch
+            {
+                CreditAgingBucket.Current => "Maujooda",
+                CreditAgingBucket.Days1To7 => "1–7 din",
+                CreditAgingBucket.Days8To30 => "8–30 din",
+                CreditAgingBucket.Days31To60 => "31–60 din",
+                CreditAgingBucket.Days60Plus => "60+ din",
+                _ => bucket.Bucket.ToString()
+            };
+
+            <div class="repx-aging-item">
+
+                <span>
+                    @label
+                </span>
+
+                <strong>
+                    Rs. @bucket.Amount.ToString("N0")
+                </strong>
+
+                <small>
+                    @bucket.CustomerCount customers
+                </small>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+
+<section class="repx-panel">
+
+    <div class="repx-panel-head">
+
+        <div>
+
+            <span class="repx-section-kicker">
+                BAQAYA LIST
+            </span>
+
+            <h2>
+                Customer Baqaya
+            </h2>
+
+            <p>
+                Payment date lagi ho ya na ho,
+                tamam baqaya yahan nazar aayega.
+            </p>
+
+        </div>
+
+        <span class="repx-panel-chip">
+            @r.Rows.Count records
+        </span>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table repx-table mb-0">
+
+            <thead>
+
+                <tr>
+                    <th>Customer</th>
+                    <th>Bill / Ref</th>
+                    <th>Wasooli Date</th>
+
+                    <th class="text-end">
+                        Baqaya Raqam
+                    </th>
+
+                    <th class="text-end">
+                        Guzray Din
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Udhaar Ki Muddat
+                    </th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @foreach (var row in r.Rows)
+                {
+                    var statusClass =
+                    row.Status == CreditStatus.Overdue
+                    ? "is-danger"
+                    : row.Status == CreditStatus.DueToday
+                    ? "is-warning"
+                    : row.Status == CreditStatus.Unscheduled
+                    ? "is-neutral"
+                    : "is-success";
+
+                    var agingLabel = row.AgingBucket switch
+                    {
+                        CreditAgingBucket.Current => "Maujooda",
+                        CreditAgingBucket.Days1To7 => "1–7 din",
+                        CreditAgingBucket.Days8To30 => "8–30 din",
+                        CreditAgingBucket.Days31To60 => "31–60 din",
+                        CreditAgingBucket.Days60Plus => "60+ din",
+                        _ => row.AgingBucket.ToString()
+                    };
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                @row.CustomerName
+                            </strong>
+
+                            <small>
+                                @row.Phone
+                            </small>
+                        </td>
+
+
+                        <td>
+                            <span class="repx-reference-static">
+                                @row.Reference
+                            </span>
+                        </td>
+
+
+                        <td>
+                            @(row.DueDate?.ToString("dd MMM yyyy")
+                                                    ?? "Wasooli Date Nahi")
+                                                                       </td>
+
+
+                        <td class="text-end repx-money">
+                            Rs. @row.OutstandingAmount.ToString("N2")
+                        </td>
+
+
+                        <td class="text-end @(row.DaysOverdue > 0 ? "text-danger" : "text-muted")">
+
+                            @(row.DaysOverdue > 0
+                                                    ? row.DaysOverdue.ToString()
+                                                    : "—")
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="repx-status @statusClass">
+
+                                @(
+                                                            row.Status == CreditStatus.Overdue
+                                                            ? "Muddat Guzar Gayi"
+                                                            : row.Status == CreditStatus.DueToday
+                                                            ? "Aaj Wasooli"
+                                                            : row.Status == CreditStatus.Upcoming
+                                                            ? "Qareeb"
+                                                            : "Wasooli Date Nahi"
+                                                            )
+
+                        </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="repx-method">
+                                @agingLabel
+                            </span>
+
+                        </td>
+
+                    </tr>
+                                }
+
+
+                @if (r.Rows.Count == 0)
+                {
+                    <tr>
+
+                        <td colspan="7"
+                            class="repx-empty">
+
+                            Is filter mein koi baqaya nahi mila.
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>

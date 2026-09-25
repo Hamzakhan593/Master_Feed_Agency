@@ -1,0 +1,114 @@
+@page "{id:int}"
+@model Master_Feed_Agency.Pages.Products.HistoryModel
+@{
+    ViewData["Title"] = "Stock History";
+    var product = Model.ProductItem;
+    var threshold = product?.LowStockThreshold ?? 0m;
+    var isLow = Model.CurrentStock <= threshold;
+    var totalIn = Model.Rows.Sum(x => x.QuantityIn);
+    var totalOut = Model.Rows.Sum(x => x.QuantityOut);
+}
+
+<div class="product-page product-history-page">
+    <section class="product-page-header">
+        <div class="product-page-heading">
+            <span class="product-page-kicker">Stock Ki Tafseel</span>
+            <div class="product-title-line"><h1>@product?.Name</h1><span class="product-code-badge">@product?.Code</span></div>
+            <p>Every opening, sale, reversal and manual adjustment is retained as a separate stock movement.</p>
+        </div>
+        <div class="product-page-actions">
+            @if (User.HasPermission(AppPermissions.AdjustStock))
+            {
+                <a asp-page="Adjust" asp-route-id="@product?.Id" class="btn btn-primary product-header-btn">Adjust Stock</a>
+            }
+            @if (User.HasPermission(AppPermissions.ManageProducts))
+            {
+                <a asp-page="Edit" asp-route-id="@product?.Id" class="btn btn-light product-header-btn">Product Details Badlein</a>
+            }
+            <a data-return-list="/Products" asp-page="Index" class="btn btn-light product-header-btn">Back</a>
+        </div>
+    </section>
+
+    <section class="product-history-stat-grid">
+        <div class="product-history-stat-card @(isLow ? "is-warning" : "is-success")">
+            <span>Current stock</span><strong>@Model.CurrentStock.ToString("0.###") @product?.Unit</strong><small>@(isLow ? "Attention required" : "Above warning threshold")</small>
+        </div>
+        <div class="product-history-stat-card">
+            <span>Total stock in</span><strong>@totalIn.ToString("0.###") @product?.Unit</strong><small>Across all movement records</small>
+        </div>
+        <div class="product-history-stat-card">
+            <span>Total stock out</span><strong>@totalOut.ToString("0.###") @product?.Unit</strong><small>Across all movement records</small>
+        </div>
+        <div class="product-history-stat-card">
+            <span>Stock Entries</span><strong>@Model.Rows.Count</strong><small>Stock aane aur jane ka record</small>
+        </div>
+    </section>
+
+    <section class="product-history-info-strip">
+        <div><span>Unit</span><strong>@product?.Unit</strong></div>
+        <div><span>Default sale price</span><strong>Rs. @((product?.DefaultSalePrice ?? 0m).ToString("N2"))</strong></div>
+        <div><span>Low-stock threshold</span><strong>@threshold.ToString("0.###") @product?.Unit</strong></div>
+        <div><span>Status</span><strong>@(product?.IsActive == true ? "Active" : "Inactive")</strong></div>
+    </section>
+
+    <section class="product-list-panel product-history-panel">
+        <div class="product-list-heading">
+            <div><span class="product-section-kicker">Stock Record</span><h2>Stock Record</h2></div>
+            <span class="product-list-count">@Model.Rows.Count record(s)</span>
+        </div>
+        <div class="table-responsive product-table-wrap">
+            <table class="table product-table product-history-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Date / Time</th>
+                        <th>Movement</th>
+                        <th class="text-end">Stock In</th>
+                        <th class="text-end">Stock Out</th>
+                        <th class="text-end">Balance After</th>
+                        <th>Reason / Bill / Ref</th>
+                        <th>Saved By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (Model.Rows.Count == 0)
+                {
+                    <tr><td colspan="7"><div class="product-empty-state"><span class="product-empty-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" /></svg></span><strong>No stock movements yet</strong><span>Transactions will appear here when stock changes.</span></div></td></tr>
+                }
+                else
+                {
+                    foreach (var row in Model.Rows)
+                    {
+                        var isIn = row.QuantityIn > 0m;
+                        var typeClass = row.Type == Master_Feed_Agency.Models.StockTransactionType.SaleIssue ? "is-sale" : isIn ? "is-in" : "is-out";
+                        <tr>
+                            <td><div class="product-history-date"><strong>@BusinessTime.ToLocal(row.Date).ToString("dd MMM yyyy")</strong><span>@BusinessTime.ToLocal(row.Date).ToString("hh:mm tt")</span></div></td>
+                            <td>
+                                <div class="product-movement-cell">
+                                    <span class="product-movement-chip @typeClass">@Master_Feed_Agency.Pages.Products.HistoryModel.GetTypeLabel(row.Type)</span>
+                                    @if (row.NegativeOverrideUsed)
+                                    {
+                                        <span class="product-negative-chip">Negative override</span>
+                                    }
+                                </div>
+                            </td>
+                            <td class="text-end"><span class="product-qty-in">@(row.QuantityIn > 0 ? $"+{row.QuantityIn:0.###}" : "—")</span></td>
+                            <td class="text-end"><span class="product-qty-out">@(row.QuantityOut > 0 ? $"-{row.QuantityOut:0.###}" : "—")</span></td>
+                            <td class="text-end"><strong class="product-balance-value">@row.BalanceAfter.ToString("0.###") @product?.Unit</strong></td>
+                            <td>
+                                <div class="product-reason-cell">
+                                    <strong>@row.Reason</strong>
+                                    @if (!string.IsNullOrWhiteSpace(row.Reference))
+                                    {
+                                        <span>@row.Reference</span>
+                                    }
+                                </div>
+                            </td>
+                            <td><span class="product-user-cell">@row.UserName</span></td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>

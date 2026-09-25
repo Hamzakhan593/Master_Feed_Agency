@@ -1,0 +1,178 @@
+@page "{id:long}"
+@model Master_Feed_Agency.Pages.Sales.DetailsModel
+@{
+    ViewData["Title"] = $"Invoice {Model.Sale.InvoiceNo}";
+    var saleTypeText = Model.Sale.SaleType == SaleType.PartPaymentCredit ? "Kuch Payment + Udhaar" : Model.Sale.SaleType.ToString();
+}
+
+<div class="sales-page sales-details-page">
+    @if (TempData["SuccessMessage"] is string success)
+    {
+        <div class="alert alert-success sales-flash-alert">@success</div>
+    }
+    @if (TempData["ErrorMessage"] is string error)
+    {
+        <div class="alert alert-danger sales-flash-alert">@error</div>
+    }
+
+    @if (Model.Sale.Status == SaleStatus.Cancelled)
+    {
+        <div class="sales-cancelled-banner">
+            <div class="sales-cancelled-icon">!</div>
+            <div>
+                <strong>Ye bill cancel ho chuka hai</strong>
+                <span>@Model.Sale.CancelReason</span>
+                @if (Model.Sale.CancelledAt.HasValue)
+                {
+                    <small>Cancelled @BusinessTime.ToLocal(Model.Sale.CancelledAt.Value).ToString("dd MMM yyyy HH:mm") by @Model.CancelledByName.</small>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="sales-page-header sales-details-header">
+        <div class="sales-page-heading">
+            <div class="sales-page-eyebrow">Bill ki Tafseel</div>
+            <div class="sales-title-line">
+                <h1>@Model.Sale.InvoiceNo</h1>
+                @if (Model.Sale.Status == SaleStatus.Posted)
+                {
+                    <span class="sales-status-badge is-posted"><span></span>Saved</span>
+                }
+                else
+                {
+                    <span class="sales-status-badge is-cancelled"><span></span>Cancelled</span>
+                }
+            </div>
+            <p>@BusinessTime.ToLocal(Model.Sale.SaleDate).ToString("dddd, dd MMMM yyyy") · @BusinessTime.ToLocal(Model.Sale.SaleDate).ToString("hh:mm tt")</p>
+        </div>
+        <div class="sales-page-actions sales-details-actions">
+            <a asp-page="/Dashboard/Index" class="btn btn-light border">Business Summary</a>
+            <a asp-page="Receipt" asp-route-id="@Model.Sale.Id" target="_blank" class="btn btn-outline-primary">Receipt Print Karein</a>
+            @if (Model.Sale.CustomerId.HasValue && User.HasPermission(AppPermissions.ViewLedger))
+            {
+                <a asp-page="/Customers/Khata" asp-route-id="@Model.Sale.CustomerId.Value" class="btn btn-outline-success">Customer Khata Dekhein</a>
+            }
+            @if (User.HasPermission(AppPermissions.CreateSales))
+            {
+                <a asp-page="Create" class="btn btn-primary">+ Nayi Sale</a>
+            }
+        </div>
+    </div>
+
+    <div class="sales-detail-summary-grid">
+        <div class="sales-detail-summary-card is-total"><span>Final Raqam</span><strong>Rs. @Model.Sale.NetTotal.ToString("N2")</strong><small>Bill ki Raqam</small></div>
+        <div class="sales-detail-summary-card is-paid"><span>Abhi Wasool Raqam</span><strong>Rs. @Model.Sale.PaidAtSale.ToString("N2")</strong><small>@(Model.Sale.InitialPaymentMethod?.ToString() ?? "No immediate payment")</small></div>
+        <div class="sales-detail-summary-card is-credit"><span>Baqi Udhaar</span><strong>Rs. @Model.Sale.CreditAmount.ToString("N2")</strong><small>@(Model.Sale.DueDate?.ToString("dd MMM yyyy") is string due ? $"Due {due}" : "No payment date")</small></div>
+        <div class="sales-detail-summary-card is-type"><span>Sale type</span><strong>@saleTypeText</strong><small>@Model.Sale.Items.Count item line@(Model.Sale.Items.Count == 1 ? "" : "s")</small></div>
+    </div>
+
+    <div class="sales-details-layout">
+        <div class="sales-details-main">
+            <section class="sales-panel sales-invoice-items-panel">
+                <div class="sales-list-heading">
+                    <div><h2>Bill ke Items</h2><p>Is bill mein save products aur raqam.</p></div>
+                    <span class="sales-result-count">@Model.Sale.Items.Count item@(Model.Sale.Items.Count == 1 ? "" : "s")</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table sales-detail-items-table mb-0">
+                        <thead><tr><th>Product</th><th class="text-end">Quantity</th><th class="text-end">Rate</th><th class="text-end">Amount</th></tr></thead>
+                        <tbody>
+                        @foreach (var item in Model.Sale.Items.OrderBy(x => x.Id))
+                        {
+                            <tr>
+                                <td><div class="sales-product-name">@item.Product.Name</div><div class="sales-product-code">@item.Product.Code</div></td>
+                                <td class="text-end">@item.Quantity.ToString("0.###") @item.Product.Unit</td>
+                                <td class="text-end">Rs. @item.Rate.ToString("N2")</td>
+                                <td class="text-end"><strong>Rs. @item.LineTotal.ToString("N2")</strong></td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="sales-invoice-total-box">
+                    <div><span>Kul Raqam</span><strong>Rs. @Model.Sale.GrossTotal.ToString("N2")</strong></div>
+                    <div><span>Discount</span><strong>Rs. @Model.Sale.Discount.ToString("N2")</strong></div>
+                    <div class="is-net"><span>Final Raqam</span><strong>Rs. @Model.Sale.NetTotal.ToString("N2")</strong></div>
+                    <div><span>Abhi Wasool Raqam</span><strong>Rs. @Model.Sale.PaidAtSale.ToString("N2")</strong></div>
+                    <div class="is-credit"><span>Baqi Udhaar</span><strong>Rs. @Model.Sale.CreditAmount.ToString("N2")</strong></div>
+                </div>
+            </section>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Sale.Notes))
+            {
+                <section class="sales-panel sales-detail-note-panel">
+                    <div class="sales-panel-header sales-panel-header-simple"><div><div class="sales-note-icon">N</div><div><h2>Sale note</h2><p>Note recorded with the invoice.</p></div></div></div>
+                    <div class="sales-panel-body sales-detail-note">@Model.Sale.Notes</div>
+                </section>
+            }
+
+            @if (Model.Sale.Status == SaleStatus.Posted && User.HasPermission(AppPermissions.CancelSales))
+            {
+                <section class="sales-danger-panel">
+                    <div class="sales-danger-panel-head"><strong>Bill Cancel Karein</strong><span>Sirf ghalat bill ko cancel karne ke liye.</span></div>
+                    <div class="sales-danger-panel-body">
+                        <p>Bill cancel karne par stock wapas add hoga aur customer ka baqaya theek ho jayega. Asli bill record mein rahega.</p>
+                        <form method="post" asp-page-handler="Cancel" asp-route-id="@Model.Sale.Id">
+                            <label asp-for="CancelReason" class="form-label sales-field-label"></label>
+                            <textarea asp-for="CancelReason" class="form-control sales-control" rows="2" placeholder="Bill cancel karne ki wajah likhein..."></textarea>
+                            <span asp-validation-for="CancelReason" class="text-danger small d-block mt-1"></span>
+                            <button type="submit" class="btn btn-danger mt-3" onclick="return confirm('Bill cancel karein? Stock aur customer ka baqaya update ho jayega.');">Bill Cancel Karein</button>
+                        </form>
+                    </div>
+                </section>
+            }
+        </div>
+
+        <aside class="sales-details-side">
+            <section class="sales-panel sales-side-card">
+                <div class="sales-side-card-title">Customer</div>
+                <div class="sales-panel-body">
+                    @if (Model.Sale.Customer is null)
+                    {
+                        <div class="sales-customer-profile"><div class="sales-customer-avatar">W</div><div><strong>Walk-in Customer</strong><span>No customer khata attached</span></div></div>
+                    }
+                    else
+                    {
+                        <div class="sales-customer-profile"><div class="sales-customer-avatar">@Model.Sale.Customer.Name.Substring(0, 1).ToUpperInvariant()</div><div><strong>@Model.Sale.Customer.Name</strong><span>@Model.Sale.Customer.Phone</span></div></div>
+                        @if (!string.IsNullOrWhiteSpace(Model.Sale.Customer.BusinessName))
+                        {
+                            <div class="sales-side-meta-row"><span>Business</span><strong>@Model.Sale.Customer.BusinessName</strong></div>
+                        }
+                        <div class="sales-side-actions">
+                            @if (User.HasPermission(AppPermissions.ViewCustomers))
+                            {
+                                <a asp-page="/Customers/Details" asp-route-id="@Model.Sale.Customer.Id" class="btn btn-sm btn-light border">Customer</a>
+                            }
+                            @if (User.HasPermission(AppPermissions.ViewLedger))
+                            {
+                                <a asp-page="/Customers/Khata" asp-route-id="@Model.Sale.Customer.Id" class="btn btn-sm btn-light border">Customer Khata Dekhein</a>
+                            }
+                        </div>
+                    }
+                </div>
+            </section>
+
+            <section class="sales-panel sales-side-card">
+                <div class="sales-side-card-title">Payment & credit</div>
+                <div class="sales-panel-body sales-side-meta">
+                    <div class="sales-side-meta-row"><span>Sale type</span><strong>@saleTypeText</strong></div>
+                    <div class="sales-side-meta-row"><span>Payment method</span><strong>@(Model.Sale.InitialPaymentMethod?.ToString() ?? "—")</strong></div>
+                    <div class="sales-side-meta-row"><span>Payment Date</span><strong>@(Model.Sale.DueDate?.ToString("dd MMM yyyy") ?? "—")</strong></div>
+                </div>
+            </section>
+
+            <section class="sales-panel sales-side-card">
+                <div class="sales-side-card-title">Record Ki Tafseel</div>
+                <div class="sales-panel-body sales-side-meta">
+                    <div class="sales-side-meta-row"><span>Recorded</span><strong>@BusinessTime.ToLocal(Model.Sale.CreatedAt).ToString("dd MMM yyyy HH:mm")</strong></div>
+                    <div class="sales-trace-note">Bill number is permanent. Saved financial records are corrected through reversal, not hidden deletion.</div>
+                </div>
+            </section>
+        </aside>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

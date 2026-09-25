@@ -1,0 +1,29 @@
+PASS: Current model matches migration snapshot
+PASS: Upgrade preserves retired historical data
+PASS: Retired modules are absent from the application model
+PASS: Product opening stock
+PASS: Customer opening balance
+PASS: Simple customer edit preserves historical metadata
+PASS: Cash sale preserves balance and deducts stock
+PASS: Credit sale increases balance
+PASS: Repeated sale does not duplicate stock or balance
+PASS: Part payment leaves correct udhaar
+PASS: Insufficient stock fails without changes
+PASS: Payment reduces balance
+PASS: Dashboard separates sale receipts from later payments without double counting
+PASS: Repeated payment is idempotent
+PASS: Overpayment is rejected
+PASS: Zero after rounding is rejected
+PASS: Invalid payment method is rejected
+PASS: Sale with received payment cannot be cancelled before reversing payment
+PASS: Payment reversal restores balance
+PASS: Credit cancellation restores stock and balance
+PASS: Repeated cancellation is idempotent
+PASS: Dashboard excludes reversed payments
+PASS: Customer totals reconcile after reversals
+PASS: Khata date filter and payment receipt links
+PASS: Sales report excludes cancelled sale
+PASS: Stock report reconciles
+PASS: Dashboard follow-up includes overdue customers
+PASS: Posted payment deletion is blocked
+ALL CHECKS PASSED. Verification data retained for browser checks; use --cleanup afterwards.

@@ -1,0 +1,115 @@
+@page "{id:int}"
+@model Master_Feed_Agency.Pages.Products.AdjustModel
+@{
+    ViewData["Title"] = "Stock Add / Correct Karein";
+    var threshold = Model.ProductItem?.LowStockThreshold ?? 0m;
+    var isLow = Model.CurrentStock <= threshold;
+}
+
+<div class="product-page product-adjust-page">
+    <section class="product-page-header product-form-header">
+        <div class="product-page-heading">
+            <span class="product-page-kicker">Products / Stock</span>
+            <h1>Stock Add / Correct Karein</h1>
+            <p>@Model.ProductItem?.Code · @Model.ProductItem?.Name</p>
+        </div>
+        <div class="product-page-actions">
+            <a asp-page="History" asp-route-id="@Model.ProductItem?.Id" class="btn btn-light product-header-btn">Stock History</a>
+            <a data-return-list="/Products" asp-page="Index" class="btn btn-light product-header-btn">Products Par Wapas</a>
+        </div>
+    </section>
+
+    <section class="product-adjust-summary">
+        <div class="product-adjust-stock-card">
+            <span class="product-adjust-icon @(isLow ? "is-warning" : "is-success")">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 8-9 5-9-5M3 8l9-5 9 5v8l-9 5-9-5V8Z" /><path d="M12 13v8" /></svg>
+            </span>
+            <div><span>Current stock</span><strong>@Model.CurrentStock.ToString("0.###") @Model.ProductItem?.Unit</strong><small>@(isLow ? "At or below low-stock threshold" : "Stock is above warning threshold")</small></div>
+        </div>
+        <div class="product-adjust-meta"><span>Low-stock threshold</span><strong>@threshold.ToString("0.###") @Model.ProductItem?.Unit</strong></div>
+        <div class="product-adjust-meta"><span>Stock Ki Ijazat</span><strong>@(Model.CanOverrideNegative ? "Negative override available" : "Negative stock blocked")</strong></div>
+    </section>
+
+    <div class="product-adjust-layout">
+        <main class="product-form-main">
+            <section class="product-form-panel">
+                <div class="product-form-panel-head">
+                    <span class="product-form-step is-amber">1</span>
+                    <div><h2>Stock Add Ya Kam Karein</h2><p>Choose the direction, quantity and business reason for this correction.</p></div>
+                </div>
+                <form method="post">
+                    <input type="hidden" asp-for="Input.ProductId" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger product-validation-summary"></div>
+                    <div class="product-form-panel-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Input.Direction" class="product-field-label">Stock Mein Tabdeeli</label>
+                                <select asp-for="Input.Direction" class="form-select product-control">
+                                    <option value="IN">Stock Add Karein</option>
+                                    <option value="OUT">Stock Kam Karein</option>
+                                </select>
+                                <span asp-validation-for="Input.Direction" class="text-danger small"></span>
+                                <div class="product-field-hint">Stock In adds quantity. Stock Out reduces quantity.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Input.Quantity" class="product-field-label"></label>
+                                <div class="input-group product-money-input product-quantity-input">
+                                    <input asp-for="Input.Quantity" class="form-control" placeholder="0" />
+                                    <span class="input-group-text">@Model.ProductItem?.Unit</span>
+                                </div>
+                                <span asp-validation-for="Input.Quantity" class="text-danger small"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="Input.Reason" class="product-field-label"></label>
+                                <textarea asp-for="Input.Reason" class="form-control product-control" rows="4" placeholder="Describe why stock is being adjusted..."></textarea>
+                                <span asp-validation-for="Input.Reason" class="text-danger small"></span>
+                                <div class="product-field-hint">Examples: physical count correction, damaged bags, returned goods or owner-approved opening correction.</div>
+                            </div>
+                        </div>
+
+                        @if (Model.CanOverrideNegative)
+                        {
+                            <label class="product-negative-override-card mt-3">
+                                <div><strong>Allow negative stock for this adjustment</strong><small>Use only when the physical or business situation genuinely requires it. The override is permanently visible in stock history.</small></div>
+                                <span class="form-check form-switch m-0"><input asp-for="Input.AllowNegativeOverride" class="form-check-input" /></span>
+                            </label>
+                        }
+                    </div>
+                    <div class="product-form-footer">
+                        <div class="product-integrity-note is-warning">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9v4M12 17h.01" /><path d="M10.3 3.7 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z" /></svg>
+                            <div><strong>Stock Record Update Hoga</strong><span>Quantity aur tabdeeli ki wajah Stock Record mein save hogi.</span></div>
+                        </div>
+                        <div class="product-form-actions">
+                            <a data-return-list="/Products" asp-page="Index" class="btn btn-light">Wapas Jayein</a>
+                            <button type="submit" class="btn btn-primary">Stock Save Karein</button>
+                        </div>
+                    </div>
+                </form>
+            </section>
+        </main>
+
+        <aside class="product-form-side">
+            <section class="product-side-card">
+                <div class="product-side-card-title">Save Karne Se Pehle</div>
+                <div class="product-side-card-body">
+                    <div class="product-check-row"><span>1</span><div><strong>Maujooda Stock Check Karein</strong><small>Correction se pehle stock gin kar quantity confirm karein.</small></div></div>
+                    <div class="product-check-row"><span>2</span><div><strong>Stock Add Ya Kam Karein</strong><small>Maal aane par Stock Add Karein aur quantity kam karne par Stock Kam Karein select karein.</small></div></div>
+                    <div class="product-check-row"><span>3</span><div><strong>Tabdeeli Ki Wajah Likhein</strong><small>Wajah likhein taake baad mein stock ki tabdeeli samajh aaye.</small></div></div>
+                </div>
+            </section>
+            <section class="product-side-card product-side-card-soft">
+                <div class="product-side-card-title">Selected Product</div>
+                <div class="product-side-card-body product-side-product">
+                    <strong>@Model.ProductItem?.Name</strong>
+                    <span>@Model.ProductItem?.Code · @Model.ProductItem?.Unit</span>
+                    <small>Default sale price Rs. @((Model.ProductItem?.DefaultSalePrice ?? 0m).ToString("N2"))</small>
+                </div>
+            </section>
+        </aside>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

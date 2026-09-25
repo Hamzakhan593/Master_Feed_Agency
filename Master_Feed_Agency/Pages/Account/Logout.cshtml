@@ -1,0 +1,20 @@
+@page
+@model Master_Feed_Agency.Pages.Account.LogoutModel
+@{
+    ViewData["Title"] = "Sign Out";
+}
+
+<div class="authx-denied-shell authx-signout-shell">
+    <section class="authx-denied-card authx-signout-card">
+        <div class="authx-signout-icon">→</div>
+        <span class="authx-eyebrow">Account session</span>
+        <h1>Sign out of Master Feed?</h1>
+        <p>Your business data will remain safe. You will need to sign in again before accessing the workspace.</p>
+        <div class="authx-denied-actions">
+            <a asp-page="/Index" class="btn btn-outline-secondary">Stay signed in</a>
+            <form method="post" class="m-0">
+                <button type="submit" class="btn btn-danger">Sign out</button>
+            </form>
+        </div>
+    </section>
+</div>

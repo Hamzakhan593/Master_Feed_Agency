@@ -1,0 +1,124 @@
+@page "{id:int}"
+@model Master_Feed_Agency.Pages.Products.EditModel
+@{
+    ViewData["Title"] = "Product Details Badlein";
+    var isLow = Model.CurrentStock <= Model.Input.LowStockThreshold;
+}
+
+<div class="product-page product-form-page">
+    <section class="product-page-header product-form-header">
+        <div class="product-page-heading">
+            <span class="product-page-kicker">Product master</span>
+            <h1>Product Details Badlein</h1>
+            <p>Update product identity, pricing and alert settings without rewriting stock history.</p>
+        </div>
+        <div class="product-page-actions">
+            @if (User.HasPermission(AppPermissions.AdjustStock))
+            {
+                <a asp-page="Adjust" asp-route-id="@Model.Input.Id" class="btn btn-outline-primary product-header-btn">Adjust Stock</a>
+            }
+            <a data-return-list="/Products" asp-page="Index" class="btn btn-light product-header-btn">Products Par Wapas</a>
+        </div>
+    </section>
+
+    <section class="product-edit-summary">
+        <div class="product-edit-summary-card">
+            <span>Current stock</span><strong>@Model.CurrentStock.ToString("0.###") @Model.Input.Unit</strong><small>Calculated from stock movements</small>
+        </div>
+        <div class="product-edit-summary-card @(isLow ? "is-warning" : "is-success")">
+            <span>Stock Ki Haalat</span><strong>@(isLow ? "Kam Stock" : "Stock Maujood Hai")</strong><small>Threshold @Model.Input.LowStockThreshold.ToString("0.###") @Model.Input.Unit</small>
+        </div>
+        <div class="product-edit-summary-card">
+            <span>Product code</span><strong class="font-monospace">@Model.Input.Code</strong><small>Stable inventory reference</small>
+        </div>
+    </section>
+
+    <div class="product-form-layout">
+        <main class="product-form-main">
+            <section class="product-form-panel">
+                <div class="product-form-panel-head">
+                    <span class="product-form-step">1</span>
+                    <div><h2>Product details</h2><p>Keep names, units and rates accurate for staff and customer receipts.</p></div>
+                </div>
+                <form method="post">
+                    <input type="hidden" asp-for="Input.Id" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger product-validation-summary"></div>
+                    <div class="product-form-panel-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label asp-for="Input.Code" class="product-field-label"></label>
+                                <input asp-for="Input.Code" class="form-control product-control text-uppercase" />
+                                <span asp-validation-for="Input.Code" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-8">
+                                <label asp-for="Input.Name" class="product-field-label"></label>
+                                <input asp-for="Input.Name" class="form-control product-control" />
+                                <span asp-validation-for="Input.Name" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Input.Unit" class="product-field-label"></label>
+                                <input asp-for="Input.Unit" class="form-control product-control" />
+                                <span asp-validation-for="Input.Unit" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Input.PurchaseCost" class="product-field-label"></label>
+                                <div class="input-group product-money-input"><span class="input-group-text">Rs.</span><input asp-for="Input.PurchaseCost" class="form-control" /></div>
+                                <span asp-validation-for="Input.PurchaseCost" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Input.DefaultSalePrice" class="product-field-label"></label>
+                                <div class="input-group product-money-input"><span class="input-group-text">Rs.</span><input asp-for="Input.DefaultSalePrice" class="form-control" /></div>
+                                <span asp-validation-for="Input.DefaultSalePrice" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Input.LowStockThreshold" class="product-field-label"></label>
+                                <input asp-for="Input.LowStockThreshold" class="form-control product-control" />
+                                <span asp-validation-for="Input.LowStockThreshold" class="text-danger small"></span>
+                                <div class="product-field-hint">Only the warning level changes here. Current stock stays untouched.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="product-field-label">Availability</label>
+                                <label class="product-status-switch-card">
+                                    <span><strong>Product is active</strong><small>Inactive products remain in history but are blocked from normal new use.</small></span>
+                                    <span class="form-check form-switch m-0"><input asp-for="Input.IsActive" class="form-check-input" /></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="product-form-footer">
+                        <div class="product-integrity-note">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M12 4v16" /></svg>
+                            <div><strong>Stock is protected on this screen</strong><span>Use Stock Add / Correct Karein for quantity corrections so every change remains traceable.</span></div>
+                        </div>
+                        <div class="product-form-actions">
+                            <a data-return-list="/Products" asp-page="Index" class="btn btn-light">Wapas Jayein</a>
+                            <button type="submit" class="btn btn-primary">Tabdeeliyan Save Karein</button>
+                        </div>
+                    </div>
+                </form>
+            </section>
+        </main>
+
+        <aside class="product-form-side">
+            <section class="product-side-card">
+                <div class="product-side-card-title">Stock Ke Options</div>
+                <div class="product-side-card-body product-side-actions-list">
+                    <a asp-page="History" asp-route-id="@Model.Input.Id"><span>Stock Record</span><small>Stock aane aur jane ki tafseel dekhein</small></a>
+                    @if (User.HasPermission(AppPermissions.AdjustStock))
+                    {
+                        <a asp-page="Adjust" asp-route-id="@Model.Input.Id"><span>Adjust stock</span><small>Stock add ya kam karein</small></a>
+                    }
+                    <a asp-page="/Reports/Stock"><span>Stock report</span><small>Compare inventory across products</small></a>
+                </div>
+            </section>
+            <section class="product-side-card product-side-card-warning">
+                <div class="product-side-card-title">Important</div>
+                <div class="product-side-card-body product-side-copy"><p>Do not use product editing to correct physical quantity. That would remove the business trail the system is designed to protect.</p></div>
+            </section>
+        </aside>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

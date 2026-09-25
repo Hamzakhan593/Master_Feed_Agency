@@ -1,0 +1,67 @@
+@page
+@model Master_Feed_Agency.Pages.Dashboard.IndexModel
+@{
+    ViewData["Title"] = "Business Summary";
+    var s = Model.Snapshot;
+    var date = s.BusinessDate.ToString("yyyy-MM-dd");
+}
+<section class="dashboard-v2">
+    <div class="dashboard-hero">
+        <div><span class="dashboard-eyebrow">Business Summary</span><h1>Karobar Ek Nazar Mein</h1><p>@s.BusinessDate.ToString("dd MMMM yyyy") · Aaj ki sale, payment aur zaroori kaam</p></div>
+        <div class="dashboard-hero-actions">
+            @if (User.HasPermission(AppPermissions.CreateSales)) { <a asp-page="/Sales/Create" class="btn btn-primary">+ Nayi Sale</a> }
+            @if (User.HasPermission(AppPermissions.ReceivePayments)) { <a asp-page="/Payments/Create" class="btn btn-light">Payment Wasool Karein</a> }
+        </div>
+    </div>
+    <div class="dashboard-primary-grid">
+        <div class="dashboard-primary-card">
+            <div class="dashboard-primary-copy"><span>Aaj Ki Sale</span><strong>Rs. @s.TodaySales.ToString("N0")</strong><small>Cash aur udhaar ke saved bills</small></div>
+            @if(User.HasPermission(AppPermissions.ViewReports)){<a asp-page="/Reports/Sales" asp-route-From="@date" asp-route-To="@date">Sales Report →</a>}
+        </div>
+        <div class="dashboard-primary-card dashboard-primary-card-cyan">
+            <div class="dashboard-primary-copy"><span>Aaj Mili Payment</span><strong>Rs. @((s.TodaySaleReceipts + s.TodayRecovery).ToString("N0"))</strong><small>Sale par mili: Rs. @s.TodaySaleReceipts.ToString("N0")</small><small>Alag wasooli: Rs. @s.TodayRecovery.ToString("N0")</small></div>
+        </div>
+        <div class="dashboard-primary-card dashboard-primary-card-blue">
+            <div class="dashboard-primary-copy"><span>Customers Se Kul Lena Hai</span><strong>Rs. @s.TotalUdhaar.ToString("N0")</strong><small>@s.OutstandingCustomerCount customers ka baqaya</small></div>
+            @if(User.HasPermission(AppPermissions.ViewReports)){<a asp-page="/Reports/Credit">Udhaar Report →</a>}
+        </div>
+        <a asp-page="/Products/Index" asp-route-LowStockOnly="true" class="dashboard-primary-card">
+            <div class="dashboard-primary-copy"><span>Kam Stock Wale Products</span><strong>@s.LowStockCount</strong><small>Stock mangwane ki zaroorat check karein</small></div>
+        </a>
+    </div>
+    <div class="dashboard-content-grid">
+        <section class="dashboard-panel">
+            <div class="dashboard-panel-header"><div><span class="dashboard-panel-kicker">Payment Ka Follow-up</span><h2>Aaj Aur Late Payments</h2><p>Aaj due: Rs. @s.TodayDue.ToString("N0") · Late: Rs. @s.Overdue.ToString("N0")</p><small>Sab se zyada due raqam wale @s.DueCustomers.Count customers</small></div><a asp-page="@(User.HasPermission(AppPermissions.ViewReports) ? "/Reports/Credit" : "/Customers/Index")">Sab Dekhein →</a></div>
+            @if (s.DueCustomers.Count == 0)
+            { <div class="dashboard-empty-state"><strong>Koi due ya late payment nahi.</strong><span>Customer ka poora hisaab Customers mein dekhein.</span></div> }
+            else
+            {
+                <div class="ux-due-list">
+                @foreach(var row in s.DueCustomers)
+                {
+                    <div class="ux-action-row"><div><strong>@row.CustomerName</strong><small>@row.Phone</small><span>Rs. @row.Amount.ToString("N0")</span></div><div class="ux-section-links">
+                    @if (User.HasPermission(AppPermissions.ReceivePayments)) { <a asp-page="/Payments/Create" asp-route-customerId="@row.CustomerId" class="btn btn-sm btn-primary">Payment Wasool Karein</a> }
+                    @if (User.HasPermission(AppPermissions.ViewLedger)) { <a asp-page="/Customers/Khata" asp-route-id="@row.CustomerId" class="btn btn-sm btn-light">Khata Dekhein</a> }
+                    </div></div>
+                }
+                </div>
+            }
+        </section>
+        <section class="dashboard-panel">
+            <div class="dashboard-panel-header"><div><span class="dashboard-panel-kicker">Stock Mangwayein</span><h2>Kam Stock Ki List</h2><p>Available stock aur aapki minimum limit</p></div><a asp-page="/Products/Index" asp-route-LowStockOnly="true">Sab Dekhein →</a></div>
+            @if(s.LowStockProducts.Count == 0)
+            { <div class="dashboard-empty-state"><strong>Stock minimum limit se upar hai.</strong><span>Filhal kisi product ka stock kam nahi.</span></div> }
+            else
+            {
+                @foreach(var row in s.LowStockProducts)
+                {
+                    <div class="ux-action-row"><div><strong>@row.Name</strong><small>@row.Code</small><span>@row.CurrentStock.ToString("0.###") @row.Unit baqi</span><small>Minimum: @row.Threshold.ToString("0.###") @row.Unit</small></div>
+                    @if(User.HasPermission(AppPermissions.AdjustStock)) { <a asp-page="/Products/Adjust" asp-route-id="@row.ProductId" class="btn btn-sm btn-primary">Stock Add Karein</a> }
+                    else { <a asp-page="/Products/Index" class="btn btn-sm btn-light">Stock Dekhein</a> }
+                    </div>
+                }
+            }
+        </section>
+    </div>
+    <div class="ux-section-links"><a asp-page="/Customers/Index" class="btn btn-light">Customer Search / Khata</a>@if(User.HasPermission(AppPermissions.ViewReports)){<a asp-page="/Reports/Index" class="btn btn-light">Mahine Ki Reports Dekhein</a>}</div>
+</section>

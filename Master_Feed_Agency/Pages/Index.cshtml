@@ -1,0 +1,89 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+@if (TempData["SuccessMessage"] is string success)
+{
+    <div class="alert alert-success">@success</div>
+}
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <section class="home-launch">
+        <div class="home-launch-hero">
+            <div class="home-launch-copy">
+                <span class="home-launch-kicker">BUSINESS WORKSPACE</span>
+                <h1>Master Feed Agency</h1>
+                <p>Sale, customer udhaar, payment aur stock ka simple system.</p>
+            </div>
+
+            <div class="home-launch-primary-actions no-print">
+                @if (User.HasPermission(AppPermissions.CreateSales))
+                {
+                    <a asp-page="/Sales/Create" class="btn btn-primary home-launch-primary-button"><span aria-hidden="true">+</span>Nayi Sale</a>
+                }
+                @if (User.HasPermission(AppPermissions.ReceivePayments))
+                {
+                    <a asp-page="/Payments/Create" class="btn btn-light home-launch-secondary-button">Payment Wasool Karein</a>
+                }
+            </div>
+        </div>
+
+        <div class="home-launch-section-head">
+            <div><span>ROZANA KAAM</span><h2>Sale Aur Payment</h2></div>
+            <p>Sirf rozana use hone wale screens.</p>
+        </div>
+
+        <div class="home-launch-grid">
+            @if (User.HasPermission(AppPermissions.ViewCustomers))
+            {
+                <a asp-page="/Customers/Index" class="home-launch-card">
+                    <span class="home-launch-card-icon home-launch-card-icon-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8" /></svg></span>
+                    <span class="home-launch-card-copy"><strong>Customers</strong><small>Customer search karke us ka khata kholein</small></span>
+                    <span class="home-launch-card-arrow" aria-hidden="true">→</span>
+                </a>
+            }
+
+            @if (User.HasPermission(AppPermissions.ViewProducts))
+            {
+                <a asp-page="/Products/Index" class="home-launch-card">
+                    <span class="home-launch-card-icon home-launch-card-icon-amber" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7 12 3l8 4v10l-8 4-8-4zM4 7l8 4 8-4M12 11v10" /></svg></span>
+                    <span class="home-launch-card-copy"><strong>Products / Stock</strong><small>Available maal aur product rates</small></span>
+                    <span class="home-launch-card-arrow" aria-hidden="true">→</span>
+                </a>
+            }
+
+            @if (User.HasPermission(AppPermissions.ViewReports))
+            {
+                <a asp-page="/Reports/Index" class="home-launch-card">
+                    <span class="home-launch-card-icon home-launch-card-icon-cyan" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2" /></svg></span>
+                    <span class="home-launch-card-copy"><strong>Reports</strong><small>Daily/monthly sales, udhaar aur stock</small></span>
+                    <span class="home-launch-card-arrow" aria-hidden="true">→</span>
+                </a>
+            }
+
+            @if (User.HasPermission(AppPermissions.ManageUsers))
+            {
+                <a asp-page="/Admin/Users/Index" class="home-launch-card">
+                    <span class="home-launch-card-icon home-launch-card-icon-indigo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21a8 8 0 0 1 16 0M19 8v6M16 11h6" /></svg></span>
+                    <span class="home-launch-card-copy"><strong>Staff / Access</strong><small>User accounts aur permissions</small></span>
+                    <span class="home-launch-card-arrow" aria-hidden="true">→</span>
+                </a>
+            }
+        </div>
+    </section>
+}
+else
+{
+    <section class="home-public-card">
+        <div class="home-public-copy">
+            <span class="home-launch-kicker">MASTER FEED AGENCY</span>
+            <h1>Simple sales, udhaar and customer khata management.</h1>
+            <p>Cash/credit sales, customer payments aur stock ek secure system mein.</p>
+            <a asp-page="/Account/Login" class="btn btn-primary btn-lg">Sign in</a>
+        </div>
+        <div class="home-public-side" aria-hidden="true"><span>MF</span></div>
+    </section>
+}

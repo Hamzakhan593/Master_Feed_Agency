@@ -1,0 +1,172 @@
+@page
+@model Master_Feed_Agency.Pages.Customers.IndexModel
+@{
+    ViewData["Title"] = "Customers";
+    var visibleOutstanding = Model.Customers.Where(x => x.CurrentBalance > 0m).Sum(x => x.CurrentBalance);
+    var activeCount = Model.Customers.Count(x => x.IsActive);
+}
+
+<div class="customer-page customer-page--index">
+    @if (TempData["SuccessMessage"] is string success)
+    {
+        <div class="alert alert-success customer-flash-alert">@success</div>
+    }
+    @if (TempData["ErrorMessage"] is string error)
+    {
+        <div class="alert alert-danger customer-flash-alert">@error</div>
+    }
+
+    <section class="customer-page-header">
+        <div class="customer-page-heading">
+            <span class="customer-page-kicker">Customers & Khata</span>
+            <h1>Customers</h1>
+            <p>Customer search karein. Isi list se us ka profile, baqaya aur poora khata khol sakte hain.</p>
+        </div>
+        <div class="customer-page-actions">
+            @if (User.HasPermission(AppPermissions.ManageCustomers))
+            {
+                <a asp-page="Create" class="btn btn-primary customer-header-btn customer-header-primary">
+                    <span class="customer-btn-plus">+</span> Customer Add Karein
+                </a>
+            }
+        </div>
+    </section>
+
+    <section class="customer-stat-grid customer-stat-grid--simple" aria-label="Customer summary">
+        <div class="customer-stat-card">
+            <span class="customer-stat-icon is-blue">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+            </span>
+            <div><span>Customers</span><strong>@Model.Customers.Count</strong><small>Current filter mein</small></div>
+        </div>
+        <div class="customer-stat-card">
+            <span class="customer-stat-icon is-green">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg>
+            </span>
+            <div><span>Active</span><strong>@activeCount</strong><small>Nayi sale ke liye available</small></div>
+        </div>
+        <div class="customer-stat-card">
+            <span class="customer-stat-icon is-amber">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+            </span>
+            <div><span>Total Udhaar</span><strong>Rs. @visibleOutstanding.ToString("N0")</strong><small>Is list ka positive baqaya</small></div>
+        </div>
+    </section>
+
+    <section class="customer-filter-panel">
+        <form method="get" class="customer-filter-grid">
+            <div class="customer-filter-search">
+                <label asp-for="Search">Customer search karein</label>
+                <div class="customer-search-control">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+                    <input asp-for="Search" class="form-control" placeholder="Name, phone ya area" />
+                </div>
+            </div>
+            <div>
+                <label asp-for="Status">Status</label>
+                <select asp-for="Status" class="form-select">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="all">All customers</option>
+                </select>
+            </div>
+            <div class="customer-filter-action">
+                <button class="btn btn-primary" type="submit">Search</button>
+                <a asp-page="Index" class="btn btn-light">Filter Hataein</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="customer-list-panel">
+        <div class="customer-list-heading">
+            <div>
+                <span class="customer-section-kicker">Customer List</span>
+                <h2>Customer select karein</h2>
+            </div>
+            <span class="customer-list-count">@Model.Customers.Count record(s)</span>
+        </div>
+
+        <div class="table-responsive customer-table-wrap">
+            <table class="table customer-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Contact</th>
+                        <th class="text-end">Baqaya</th>
+                        <th>Status</th>
+                        <th class="text-end">Kaam</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (Model.Customers.Count == 0)
+                {
+                    <tr>
+                        <td colspan="5">
+                            <div class="customer-empty-state">
+                                <span class="customer-empty-icon">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8" /></svg>
+                                </span>
+                                <strong>No customers found</strong>
+                                <span>Search badlein ya naya customer add karein.</span>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var item in Model.Customers)
+                    {
+                        var initials = string.Concat(item.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(x => char.ToUpperInvariant(x[0])));
+                        <tr>
+                            <td>
+                                <div class="customer-person-cell">
+                                    <span class="customer-avatar">@initials</span>
+                                    <div>
+                                        <a asp-page="Details" asp-route-id="@item.Id" class="customer-name-link">@item.Name</a>
+                                        <span>@(string.IsNullOrWhiteSpace(item.BusinessName) ? "Customer" : item.BusinessName)</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="customer-contact-cell">
+                                    <strong>@item.Phone</strong>
+                                    <span>@(string.IsNullOrWhiteSpace(item.Area) ? "Area not set" : item.Area)</span>
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                @if (item.CurrentBalance > 0m)
+                                {
+                                    <div class="customer-balance-cell is-due"><strong>Rs. @item.CurrentBalance.ToString("N2")</strong><span>Lena hai</span></div>
+                                }
+                                else if (item.CurrentBalance < 0m)
+                                {
+                                    <div class="customer-balance-cell is-advance"><strong>Rs. @Math.Abs(item.CurrentBalance).ToString("N2")</strong><span>Advance</span></div>
+                                }
+                                else
+                                {
+                                    <div class="customer-balance-cell is-clear"><strong>Rs. 0.00</strong><span>Clear</span></div>
+                                }
+                            </td>
+                            <td>
+                                <span class="customer-status-badge @(item.IsActive ? "is-active" : "is-inactive")"><span></span>@(item.IsActive ? "Active" : "Inactive")</span>
+                            </td>
+                            <td class="text-end">
+                                <div class="customer-row-actions">
+                                    @if (User.HasPermission(AppPermissions.ViewLedger))
+                                    {
+                                        <a asp-page="/Customers/Khata" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Customer Khata Dekhein</a>
+                                    }
+                                    @if (item.IsActive && item.CurrentBalance > 0 && User.HasPermission(AppPermissions.ReceivePayments))
+                                    {
+                                        <a asp-page="/Payments/Create" asp-route-customerId="@item.Id" class="btn btn-sm btn-light">Payment Wasool Karein</a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>

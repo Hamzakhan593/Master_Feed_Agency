@@ -1,0 +1,18 @@
+[
+  "Browser saves sale type 1",
+  "Browser saves sale type 2",
+  "Browser saves sale type 3",
+  "Payment summary updates before saving",
+  "Browser saves payment and opens receipt",
+  "Browser adds stock and opens stock record",
+  "Customer search finds matching customer",
+  "Customer khata links to payment details",
+  "CSV download: Sales",
+  "CSV download: Credit",
+  "CSV download: Stock",
+  "Staff cannot open administration",
+  "Staff sees only permitted navigation",
+  "Mobile dashboard fits viewport",
+  "Mobile menu opens",
+  "Mobile menu opens Customers"
+]

@@ -1,0 +1,147 @@
+@page
+@model Master_Feed_Agency.Pages.Payments.CreateModel
+@using Master_Feed_Agency.Models
+@{
+    ViewData["Title"] = "Payment Wasool Karein";
+    var hasCustomer = Model.Input.CustomerId > 0;
+}
+
+<div class="payment-page payment-create-page">
+    <section class="payment-page-header">
+        <div class="payment-page-heading">
+            <span class="payment-page-kicker">Customer Payment</span>
+            <h1>Payment Wasool Karein</h1>
+            <p>Customer se mili poori ya kuch payment save karein aur receipt banayein.</p>
+        </div>
+        <div class="payment-page-actions">
+            <a asp-page="/Customers/Index" class="btn btn-light payment-header-btn">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h14" /></svg>
+                Customers
+            </a>
+        </div>
+    </section>
+
+    <form method="post" class="payment-create-form">
+        <input type="hidden" asp-for="Input.ClientRequestId" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger payment-validation-summary"></div>
+
+        <div class="payment-workspace">
+            <div class="payment-workspace-main">
+                <section class="payment-panel">
+                    <div class="payment-panel-header">
+                        <div class="payment-panel-title-wrap">
+                            <span class="payment-step-number">1</span>
+                            <div>
+                                <h2>Customer Select Karein</h2>
+                                <p>Jis customer se payment mili hai usay select karein.</p>
+                            </div>
+                        </div>
+                        <span class="payment-secure-chip">Khata se linked</span>
+                    </div>
+                    <div class="payment-panel-body">
+                        <label asp-for="Input.CustomerId" class="form-label payment-field-label">Customer</label>
+                        <select asp-for="Input.CustomerId" asp-items="Model.Customers" class="form-select payment-control" data-search data-search-label="Payment ke liye customer search" data-search-required data-search-focus="#Input_Amount">
+                            <option value="0">Customer select karein</option>
+                        </select>
+                        <span asp-validation-for="Input.CustomerId" class="text-danger payment-field-error"></span>
+
+
+                    </div>
+                </section>
+
+                <section class="payment-panel">
+                    <div class="payment-panel-header">
+                        <div class="payment-panel-title-wrap">
+                            <span class="payment-step-number">2</span>
+                            <div>
+                                <h2>Payment Details</h2>
+                                <p>Mili hui raqam aur payment ka tareeqa enter karein.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="payment-panel-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Input.Amount" class="form-label payment-field-label">Mili Hui Raqam</label>
+                                <div class="input-group payment-money-control">
+                                    <span class="input-group-text">Rs.</span>
+                                    <input asp-for="Input.Amount" class="form-control payment-control" placeholder="0.00" inputmode="decimal" />
+                                </div>
+                                <span asp-validation-for="Input.Amount" class="text-danger payment-field-error"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Input.Method" class="form-label payment-field-label">Payment Ka Tareeqa</label>
+                                <select asp-for="Input.Method" asp-items="Html.GetEnumSelectList<PaymentMethod>()" class="form-select payment-control"></select>
+                                <div class="payment-field-help">Cash select karne par payment cash ke taur par save hogi.</div>
+                            </div>
+                            <details class="col-12 ux-extra"><summary>Note Add Karein (Optional)</summary>
+                                <label asp-for="Input.Notes" class="form-label payment-field-label">Notes <span>Optional</span></label>
+                                <textarea asp-for="Input.Notes" class="form-control payment-control payment-notes" rows="3" placeholder="Bill/reference, cheque detail ya zaroori note"></textarea>
+                                <span asp-validation-for="Input.Notes" class="text-danger payment-field-error"></span>
+                            </details>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="payment-post-panel">
+                <div class="payment-post-card">
+                    <div class="payment-post-card-head">
+                        <span class="payment-post-icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7 9 18l-5-5" /></svg>
+                        </span>
+                        <div>
+                            <span>Save karne ke liye tayyar</span>
+                            <strong>Payment Receipt</strong>
+                        </div>
+                    </div>
+
+                    <div class="payment-post-summary" id="paymentSummary">
+                        <div><span>Customer</span><strong>@(hasCustomer ? Model.Customers.FirstOrDefault(x => x.Value == Model.Input.CustomerId.ToString())?.Text ?? "Selected Customer" : "Select nahi kiya")</strong></div>
+                        <div><span>Raqam</span><strong>Rs. @Model.Input.Amount.ToString("N2")</strong></div>
+                        <div><span>Tareeqa</span><strong>@Model.Input.Method</strong></div>
+                    </div>
+
+                    <div class="payment-post-protection">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /><path d="m9 12 2 2 4-4" /></svg>
+                        <span>Save karte hi customer ka khata aur baqaya automatically update ho jayega.</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary payment-post-button">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7 9 18l-5-5" /></svg>
+                        Payment Save Karein
+                    </button>
+                    <a asp-page="/Dashboard/Index" class="payment-cancel-link">Wapas Jayein</a>
+                </div>
+            </aside>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+    (() => {
+        const balances = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Balances));
+        const customer = document.getElementById('Input_CustomerId');
+        const amount = document.getElementById('Input_Amount');
+        const method = document.getElementById('Input_Method');
+        for (const option of customer.options) if(option.value!=='0') option.dataset.detail='Baqaya: Rs. '+(balances[option.value]||0).toLocaleString('en-PK',{minimumFractionDigits:2});
+        const summary = document.querySelectorAll('#paymentSummary strong');
+        const note = document.createElement('p'); note.className = 'ux-balance'; customer.after(note);
+        const full = document.createElement('button');full.type='button';full.className='btn btn-light ux-payment-shortcut';full.textContent='Poora Baqaya Wasool Karein';amount.parentElement.after(full);full.addEventListener('click',()=>{amount.value=(balances[customer.value]||0).toFixed(2);update();amount.focus();});
+        function update() {
+            const balance = balances[customer.value] || 0;
+            summary[0].textContent = customer.selectedOptions[0]?.textContent || 'Customer select karein';
+            summary[1].textContent = 'Rs. ' + (Number(amount.value) || 0).toLocaleString('en-PK', {minimumFractionDigits:2});
+            summary[2].textContent = method.selectedOptions[0]?.textContent || '';
+            note.hidden = customer.value === '0';
+            const heading=document.createElement('span');heading.textContent=balance<0?'Customer Ki Advance Raqam':balance===0?'Khata Clear Hai':'Customer Se Lena Hai';
+            const value=document.createElement('strong');value.textContent='Rs. '+Math.abs(balance).toLocaleString('en-PK',{minimumFractionDigits:2});note.replaceChildren(heading,value);
+            amount.max = Math.max(0, balance);
+            full.hidden = balance<=0;
+        }
+        [customer,amount,method].forEach(x => x.addEventListener('input',update)); update();
+    })();
+    </script>
+}

@@ -1,0 +1,509 @@
+{
+  "results": [
+    {
+      "width": 1440,
+      "path": "/Dashboard",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Business Summary - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Sales/Create",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Nayi Sale - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Sales/Details/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Invoice MFA-260924-2BF0F4A516 - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Sales/Receipt/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Bill MFA-260924-2BF0F4A516 - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Payments/Create",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Payment Wasool Karein - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Payments/Details/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Payment Receipt - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Payments/Receipt/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Payment Receipt PAY-20260924141003-9097C3"
+    },
+    {
+      "width": 1440,
+      "path": "/Customers",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Customers - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Customers/Create",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Customer Add Karein - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Customers/Edit/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Customer Details Badlein - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Customers/Details/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Customer Profile - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Customers/Khata?id=1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Khata - Ahmed Poultry Farm - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Products",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Products / Stock - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Products/Create",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Product Add Karein - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Products/Edit/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Product Details Badlein - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Products/Adjust/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Stock Add / Correct Karein - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Products/History/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Stock History - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Reports",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Reports - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Reports/Sales",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Sales Report - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Reports/Credit",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Udhaar Report - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Reports/Stock",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Stock Report - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Admin/Users",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Staff / Access - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Admin/Users/Create",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Staff Account Banayein - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Account/ChangePassword",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Change Password - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Account/AccessDenied",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Access Denied - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Error",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Error - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Admin/Users/Edit/99d33c0e-4942-4588-bb45-f0d3048f7aba",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Staff Details Badlein - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Admin/Users/Permissions/99d33c0e-4942-4588-bb45-f0d3048f7aba",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Staff Ki Ijazat - Master Feed Agency"
+    },
+    {
+      "width": 1440,
+      "path": "/Admin/Users/ResetPassword/99d33c0e-4942-4588-bb45-f0d3048f7aba",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Reset Password - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Dashboard",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Business Summary - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Sales/Create",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Nayi Sale - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Sales/Details/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Invoice MFA-260924-2BF0F4A516 - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Sales/Receipt/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Bill MFA-260924-2BF0F4A516 - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Payments/Create",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Payment Wasool Karein - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Payments/Details/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Payment Receipt - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Payments/Receipt/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Payment Receipt PAY-20260924141003-9097C3"
+    },
+    {
+      "width": 390,
+      "path": "/Customers",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Customers - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Customers/Create",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Customer Add Karein - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Customers/Edit/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Customer Details Badlein - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Customers/Details/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Customer Profile - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Customers/Khata?id=1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Khata - Ahmed Poultry Farm - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Products",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Products / Stock - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Products/Create",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Product Add Karein - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Products/Edit/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Product Details Badlein - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Products/Adjust/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Stock Add / Correct Karein - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Products/History/1",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Stock History - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Reports",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Reports - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Reports/Sales",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Sales Report - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Reports/Credit",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Udhaar Report - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Reports/Stock",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Stock Report - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Admin/Users",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Staff / Access - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Admin/Users/Create",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Staff Account Banayein - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Account/ChangePassword",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Change Password - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Account/AccessDenied",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Access Denied - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Error",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Error - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Admin/Users/Edit/99d33c0e-4942-4588-bb45-f0d3048f7aba",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Staff Details Badlein - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Admin/Users/Permissions/99d33c0e-4942-4588-bb45-f0d3048f7aba",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Staff Ki Ijazat - Master Feed Agency"
+    },
+    {
+      "width": 390,
+      "path": "/Admin/Users/ResetPassword/99d33c0e-4942-4588-bb45-f0d3048f7aba",
+      "status": 200,
+      "overflow": false,
+      "broken": 0,
+      "title": "Reset Password - Master Feed Agency"
+    },
+    {
+      "retired": "/Expenses",
+      "status": 404
+    },
+    {
+      "retired": "/Cashbook",
+      "status": 404
+    },
+    {
+      "retired": "/Owners",
+      "status": 404
+    },
+    {
+      "retired": "/Audit",
+      "status": 404
+    },
+    {
+      "retired": "/Notifications",
+      "status": 404
+    },
+    {
+      "retired": "/Ledger",
+      "status": 404
+    },
+    {
+      "retired": "/Sales",
+      "status": 404
+    },
+    {
+      "retired": "/Payments",
+      "status": 404
+    },
+    {
+      "retired": "/Credit",
+      "status": 404
+    },
+    {
+      "retired": "/Reports/Recovery",
+      "status": 404
+    }
+  ],
+  "errors": []
+}

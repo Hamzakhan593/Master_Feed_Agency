@@ -1,0 +1,118 @@
+@page "{id:int}"
+@model Master_Feed_Agency.Pages.Customers.DetailsModel
+@{
+    ViewData["Title"] = "Customer Profile";
+    var initials = string.Concat(Model.Customer.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(x => char.ToUpperInvariant(x[0])));
+}
+
+<div class="customer-page customer-profile-page customer-page--details">
+    @if (TempData["SuccessMessage"] is string success)
+    {
+        <div class="alert alert-success customer-flash-alert">@success</div>
+    }
+
+    <section class="customer-profile-hero">
+        <div class="customer-profile-identity">
+            <span class="customer-profile-avatar">@initials</span>
+            <div>
+                <div class="customer-profile-title-line">
+                    <h1>@Model.Customer.Name</h1>
+                    <span class="customer-status-badge @(Model.Customer.IsActive ? "is-active" : "is-inactive")"><span></span>@(Model.Customer.IsActive ? "Active" : "Inactive")</span>
+                </div>
+                <p>@(string.IsNullOrWhiteSpace(Model.Customer.BusinessName) ? "Customer account" : Model.Customer.BusinessName)</p>
+                <div class="customer-profile-meta">
+                    <span>@Model.Customer.Phone</span>
+                    <span>•</span>
+                    <span>@(string.IsNullOrWhiteSpace(Model.Customer.Area) ? "Area not set" : Model.Customer.Area)</span>
+                </div>
+            </div>
+        </div>
+        <div class="customer-profile-actions">
+            <a data-return-list="/Customers" asp-page="Index" class="btn btn-light">Customers</a>
+            @if (User.HasPermission(AppPermissions.ViewLedger))
+            {
+                <a asp-page="/Customers/Khata" asp-route-id="@Model.Customer.Id" class="btn btn-outline-primary">Customer Khata Dekhein</a>
+            }
+            @if (User.HasPermission(AppPermissions.ReceivePayments))
+            {
+                <a asp-page="/Payments/Create" asp-route-customerId="@Model.Customer.Id" class="btn btn-success">Payment Wasool Karein</a>
+            }
+            @if (User.HasPermission(AppPermissions.CreateSales) && Model.Customer.IsActive)
+            {
+                <a asp-page="/Sales/Create" asp-route-customerId="@Model.Customer.Id" class="btn btn-primary">Nayi Sale</a>
+            }
+        </div>
+    </section>
+
+    <section class="customer-profile-stats customer-profile-stats--simple">
+        <div class="customer-profile-stat is-balance">
+            <span>Maujooda Baqaya</span>
+            <strong>Rs. @Model.CurrentBalance.ToString("N2")</strong>
+            <small>Abhi customer se lena hai</small>
+        </div>
+        <div class="customer-profile-stat is-sales">
+            <span>Total Sales</span>
+            <strong>Rs. @Model.TotalSales.ToString("N2")</strong>
+            <small>Is customer ki saved sales</small>
+        </div>
+        <div class="customer-profile-stat is-payments">
+            <span>Total Payments</span>
+            <strong>Rs. @Model.TotalPayments.ToString("N2")</strong>
+            <small>Customer se mili payments</small>
+        </div>
+    </section>
+
+    <div class="customer-profile-main customer-profile-main--full">
+        <section class="customer-panel">
+            <div class="customer-panel-header">
+                <div><span class="customer-section-kicker">Customer</span><h2>Contact & details</h2></div>
+                @if (User.HasPermission(AppPermissions.ManageCustomers))
+                {
+                    <a asp-page="Edit" asp-route-id="@Model.Customer.Id" class="btn btn-sm btn-light">Customer Details Badlein</a>
+                }
+            </div>
+            <div class="customer-detail-grid">
+                <div class="customer-detail-item"><span>Phone</span><strong>@Model.Customer.Phone</strong></div>
+                <div class="customer-detail-item"><span>Area</span><strong>@(Model.Customer.Area ?? "—")</strong></div>
+                <div class="customer-detail-item customer-detail-wide"><span>Address</span><strong>@(Model.Customer.Address ?? "—")</strong></div>
+                <div class="customer-detail-item"><span>Udhaar Limit</span><strong>Rs. @Model.Customer.CreditLimit.ToString("N2")</strong></div>
+                <div class="customer-detail-item"><span>Default Udhaar Days</span><strong>@Model.Customer.DefaultCreditDays days</strong></div>
+                <div class="customer-detail-item customer-detail-wide"><span>Notes</span><strong>@(Model.Customer.Notes ?? "—")</strong></div>
+            </div>
+        </section>
+
+        <section class="customer-panel customer-activity-panel">
+            <div class="customer-panel-header">
+                <div><span class="customer-section-kicker">Customer Khata Dekhein</span><h2>Recent account activity</h2></div>
+                @if (User.HasPermission(AppPermissions.ViewLedger))
+                {
+                    <a asp-page="/Customers/Khata" asp-route-id="@Model.Customer.Id" class="btn btn-sm btn-outline-primary">Customer Khata Dekhein</a>
+                }
+            </div>
+            <div class="table-responsive">
+                <table class="table customer-activity-table mb-0">
+                    <thead><tr><th>Date</th><th>Activity</th><th>Tafseel</th><th class="text-end">Baqaya Barha</th><th class="text-end">Baqaya Kam Hua</th></tr></thead>
+                    <tbody>
+                    @if (Model.RecentEntries.Count == 0)
+                    {
+                        <tr><td colspan="5"><div class="customer-empty-state compact"><strong>Abhi koi khata entry nahi</strong><span>Sale ya payment ke baad record yahan nazar aayega.</span></div></td></tr>
+                    }
+                    else
+                    {
+                        foreach (var entry in Model.RecentEntries)
+                        {
+                            <tr>
+                                <td><span class="customer-date-cell">@BusinessTime.ToLocal(entry.Date).ToString("dd MMM yyyy")<small>@BusinessTime.ToLocal(entry.Date).ToString("HH:mm")</small></span></td>
+                                <td><span class="customer-entry-type">@DisplayLabels.Khata(entry.Type, entry.ReferenceType)</span></td>
+                                <td class="customer-entry-description">@entry.Description</td>
+                                <td class="text-end customer-debit">@(entry.Debit == 0m ? "—" : $"Rs. {entry.Debit:N2}")</td>
+                                <td class="text-end customer-credit">@(entry.Credit == 0m ? "—" : $"Rs. {entry.Credit:N2}")</td>
+                            </tr>
+                        }
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>

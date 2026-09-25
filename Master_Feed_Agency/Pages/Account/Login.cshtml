@@ -1,0 +1,79 @@
+@page
+@model Master_Feed_Agency.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Sign in";
+}
+
+<div class="authx-login-shell">
+    <section class="authx-brand-panel">
+        <div class="authx-brand-top">
+            <span class="authx-brand-mark">MF</span>
+            <div><strong>Master Feed Agency</strong><small>Business Management System</small></div>
+        </div>
+
+        <div class="authx-brand-copy">
+            <span class="authx-eyebrow">Secure business workspace</span>
+            <h1>Rozana ka hisaab, aasaan tareeqe se.</h1>
+            <p>Sales save karein, payments wasool karein aur customer ka baqaya dekhein.</p>
+        </div>
+
+        <div class="authx-feature-list">
+            <div><span>01</span><div><strong>Sales & customer khata</strong><small>Bills, baqaya, payment dates aur wasooli track karein.</small></div></div>
+            <div><span>02</span><div><strong>Products / Stock</strong><small>Available stock aur product rates dekhein.</small></div></div>
+            <div><span>03</span><div><strong>Simple Reports</strong><small>Aaj aur is mahine ki sales aur udhaar dekhein.</small></div></div>
+        </div>
+
+        <div class="authx-brand-foot">Authorized agency staff only · Secure sign-in required</div>
+    </section>
+
+    <section class="authx-login-panel">
+        <div class="authx-login-card">
+            <div class="authx-login-icon">→</div>
+            <div class="authx-login-heading">
+                <span>Welcome back</span>
+                <h2>Sign in to continue</h2>
+                <p>Use the account provided by the agency Owner.</p>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+            {
+                <div class="authx-alert authx-alert-warning" role="alert"><span>!</span><div>@Model.StatusMessage</div></div>
+            }
+
+            <form method="post" class="authx-form">
+                <div asp-validation-summary="ModelOnly" class="authx-validation"></div>
+
+                <div class="authx-field">
+                    <label asp-for="Input.Email" class="form-label">Email address</label>
+                    <input asp-for="Input.Email" class="form-control form-control-lg" autocomplete="username" placeholder="name@agency.com" autofocus />
+                    <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                </div>
+
+                <div class="authx-field">
+                    <label asp-for="Input.Password" class="form-label">Password</label>
+                    <input asp-for="Input.Password" class="form-control form-control-lg" autocomplete="current-password" placeholder="Enter your password" />
+                    <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                </div>
+
+                <div class="authx-form-row">
+                    <label class="authx-check">
+                        <input asp-for="Input.RememberMe" class="form-check-input" />
+                        <span>Keep me signed in</span>
+                    </label>
+                    <span class="authx-secure-note">Staff Login</span>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg w-100 authx-submit">Login Karein</button>
+            </form>
+
+            <div class="authx-login-foot">
+                <span class="authx-lock">✓</span>
+                <p>Repeated failed attempts may temporarily lock the account. Contact the Owner if your account is disabled.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

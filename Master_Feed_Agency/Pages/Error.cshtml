@@ -1,0 +1,19 @@
+@page
+@model ErrorModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<section class="customer-panel p-4">
+<h1>Kaam Complete Nahi Ho Saka</h1>
+<p>Dobara koshish karne se pehle check karein ke sale ya payment pehle se save to nahi hui. Masla barqarar ho to agency owner se rabta karein.</p>
+
+@if (Model.ShowRequestId)
+{
+    <p>
+        <strong>Support Reference:</strong> <code>@Model.RequestId</code>
+    </p>
+}
+
+<a asp-page="/Index" class="btn btn-primary">Wapas Jayein</a>
+</section>

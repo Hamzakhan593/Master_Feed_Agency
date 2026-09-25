@@ -1,0 +1,142 @@
+@page
+@model Master_Feed_Agency.Pages.Customers.KhataModel
+@{
+    ViewData["Title"] = $"Khata - {Model.Statement.Customer.Name}";
+    var statement = Model.Statement;
+    var initials = string.Concat(statement.Customer.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(x => char.ToUpperInvariant(x[0])));
+    var periodText = statement.From.HasValue || statement.To.HasValue
+        ? $"{(statement.From?.ToString("dd MMM yyyy") ?? "Shuru")} se {(statement.To?.ToString("dd MMM yyyy") ?? "Aaj")}" 
+        : "Poora khata";
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-warning no-print" asp-validation-summary="All"></div>
+}
+
+<div class="ledger-page ledger-statement-page">
+    <div class="ux-balance"><span>@(statement.CurrentBalance < 0 ? "Customer Ki Advance Raqam" : "Customer Se Lena Hai")</span><strong>Rs. @Math.Abs(statement.CurrentBalance).ToString("N2")</strong><small>Aaj ka poora baqaya. Neeche ki list date filter ke mutabiq hai.</small></div>
+    <section class="ledger-statement-hero">
+        <div class="ledger-statement-identity">
+            <span class="ledger-statement-avatar">@initials</span>
+            <div>
+                <span class="ledger-page-kicker">Customer Khata Dekhein</span>
+                <h1>@statement.Customer.Name</h1>
+                <p>@(string.IsNullOrWhiteSpace(statement.Customer.BusinessName) ? "Customer" : statement.Customer.BusinessName)</p>
+                <div class="ledger-statement-meta"><span>@statement.Customer.Phone</span><span>•</span><span>@(string.IsNullOrWhiteSpace(statement.Customer.Area) ? "Area nahi diya gaya" : statement.Customer.Area)</span><span>•</span><span>@periodText</span></div>
+            </div>
+        </div>
+        <div class="ledger-statement-actions no-print">
+            <a data-return-list="/Customers" asp-page="Index" class="btn btn-light">Customers</a>
+            @if (User.HasPermission(AppPermissions.ViewCustomers))
+            {
+                <a asp-page="/Customers/Details" asp-route-id="@statement.Customer.Id" class="btn btn-outline-primary">Customer Details</a>
+            }
+            @if (statement.Customer.IsActive && User.HasPermission(AppPermissions.ReceivePayments))
+            { <a asp-page="/Payments/Create" asp-route-customerId="@statement.Customer.Id" class="btn btn-primary">Payment Wasool Karein</a> }
+            <button type="button" class="btn btn-light" id="copyStatementLink">Link Copy Karein</button>
+            <button type="button" class="btn btn-primary" onclick="window.print()">Print / PDF Save Karein</button>
+        </div>
+    </section>
+
+    <details class="ux-extra"><summary>Chuni Hui Muddat Ka Hisaab</summary>
+    <section class="ledger-statement-stats">
+        <div class="ledger-statement-stat"><span>Pichla Baqaya</span><strong>Rs. @statement.BalanceBroughtForward.ToString("N2")</strong><small>Chuni hui muddat se pehle</small></div>
+        <div class="ledger-statement-stat is-debit"><span>Baqaya Mein Izafa</span><strong>Rs. @statement.PeriodDebit.ToString("N2")</strong><small>Sales aur cancelled payments</small></div>
+        <div class="ledger-statement-stat is-credit"><span>Baqaya Mein Kami</span><strong>Rs. @statement.PeriodCredit.ToString("N2")</strong><small>Payments aur cancelled sales</small></div>
+        <div class="ledger-statement-stat is-closing"><span>Aakhri Baqaya</span><strong>Rs. @statement.ClosingBalance.ToString("N2")</strong><small>Chuni hui muddat ke aakhir mein</small></div>
+    </section>
+
+    </details>
+    <section class="ledger-statement-filter no-print">
+        <form method="get" class="ledger-statement-filter-grid">
+            <input type="hidden" name="id" value="@statement.Customer.Id" />
+            <div><label asp-for="From">Shuru ki Tareekh</label><input asp-for="From" class="form-control" /></div>
+            <div><label asp-for="To">Aakhri Tareekh</label><input asp-for="To" class="form-control" /></div>
+            <div class="ledger-statement-filter-actions"><button type="submit" class="btn btn-primary">Khata Dekhein</button><a asp-page="Khata" asp-route-id="@statement.Customer.Id" class="btn btn-light">Filter Hataein</a></div>
+        </form>
+    </section>
+
+    @if (statement.To.HasValue && statement.ClosingBalance != statement.CurrentBalance)
+    {
+        <div class="ledger-current-balance-note"><span>Aaj ka Kul Baqaya</span><strong>Rs. @statement.CurrentBalance.ToString("N2")</strong><small>Upar wala baqaya sirf is date tak hai: @statement.To.Value.ToString("dd MMM yyyy").</small></div>
+    }
+
+    <section class="ledger-statement-panel">
+        <div class="ledger-list-heading"><div><span class="ledger-section-kicker">Khata History</span><h2>Khata Ki Tafseel</h2></div><span>@statement.Rows.Count records</span></div>
+        <div class="table-responsive ledger-statement-table-wrap">
+            <table class="table ledger-statement-table mb-0">
+                <thead><tr><th>Tareekh</th><th>Type / Bill / Ref</th><th>Tafseel</th><th class="text-end">Baqaya Barha</th><th class="text-end">Baqaya Kam Hua</th><th class="text-end">Baqaya</th></tr></thead>
+                <tbody>
+                    @if (statement.From.HasValue)
+                    {
+                        <tr class="ledger-bf-row"><td>@statement.From.Value.ToString("dd MMM yyyy")</td><td><span class="ledger-type-badge">Pichla Baqaya</span></td><td>Chuni hui muddat se pehle ka baqaya</td><td>—</td><td>—</td><td class="text-end fw-bold">Rs. @statement.BalanceBroughtForward.ToString("N2")</td></tr>
+                    }
+                    @if (statement.Rows.Count == 0)
+                    {
+                        <tr><td colspan="6"><div class="ledger-empty-state"><strong>Is period mein koi khata entry nahi hai</strong><span>Date range barha kar dekhein ya poora khata kholein.</span></div></td></tr>
+                    }
+                    else
+                    {
+                        foreach (var row in statement.Rows)
+                        {
+                            <tr>
+                                <td><span class="ledger-date-cell">@BusinessTime.ToLocal(row.Date).ToString("dd MMM yyyy")<small>@BusinessTime.ToLocal(row.Date).ToString("HH:mm")</small></span></td>
+                                <td>
+                                    <span class="ledger-type-badge">@DisplayLabels.Khata(row.Type, row.ReferenceType)</span>
+                                    @if (!string.IsNullOrWhiteSpace(row.ReferenceId))
+                                    {
+                                        <div class="ledger-reference">
+                                            @if (row.SaleId.HasValue)
+                                            {
+                                                <a asp-page="/Sales/Details" asp-route-id="@row.SaleId.Value">@row.ReferenceId</a>
+                                            }
+                                            else if (row.PaymentId.HasValue)
+                                            {
+                                                <a asp-page="/Payments/Details" asp-route-id="@row.PaymentId.Value">@row.ReferenceId</a>
+                                            }
+                                            else if (string.Equals(row.ReferenceType, "CustomerSetup", StringComparison.OrdinalIgnoreCase) && User.HasPermission(AppPermissions.ViewCustomers))
+                                            {
+                                                <a asp-page="/Customers/Details" asp-route-id="@statement.Customer.Id">Purana Baqaya</a>
+                                            }
+                                            else
+                                            {
+                                                <span>@row.ReferenceId</span>
+                                            }
+                                        </div>
+                                    }
+                                </td>
+                                <td class="ledger-description">@row.Description</td>
+                                <td class="text-end ledger-amount-debit">@(row.Debit == 0m ? "—" : $"Rs. {row.Debit:N2}")</td>
+                                <td class="text-end ledger-amount-credit">@(row.Credit == 0m ? "—" : $"Rs. {row.Credit:N2}")</td>
+                                <td class="text-end ledger-running-balance">Rs. @row.RunningBalance.ToString("N2")</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+                <tfoot><tr><th colspan="3">Muddat ka Total / Aakhri Baqaya</th><th class="text-end">Rs. @statement.PeriodDebit.ToString("N2")</th><th class="text-end">Rs. @statement.PeriodCredit.ToString("N2")</th><th class="text-end">Rs. @statement.ClosingBalance.ToString("N2")</th></tr></tfoot>
+            </table>
+        </div>
+    </section>
+
+    <div class="ledger-integrity-note"><strong>Khata Note</strong><span>Ye khata saved sales aur payments se banta hai. Is screen par purane records manually change nahi hote.</span></div>
+</div>
+
+@section Scripts {
+<script>
+(() => {
+    const button = document.getElementById('copyStatementLink');
+    if (!button) return;
+    button.addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            const oldText = button.textContent;
+            button.textContent = 'Copy Ho Gaya';
+            setTimeout(() => button.textContent = oldText, 1500);
+        } catch {
+            window.prompt('Khata link copy karein:', window.location.href);
+        }
+    });
+})();
+</script>
+}

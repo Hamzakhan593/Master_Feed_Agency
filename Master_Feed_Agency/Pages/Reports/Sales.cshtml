@@ -1,0 +1,71 @@
+@page
+@model Master_Feed_Agency.Pages.Reports.SalesModel
+@{
+    ViewData["Title"] = "Sales Report";
+    var r = Model.Report;
+    var today = BusinessTime.Today;
+    var monthStart = new DateTime(today.Year, today.Month, 1);
+    var last30 = today.AddDays(-29);
+}
+
+<section class="repx-hero repx-hero-report">
+    <div class="repx-hero-copy">
+        <a asp-page="/Reports/Index" class="repx-back-link no-print">← Reports</a>
+        <div class="repx-eyebrow">SALE KA HISAB</div>
+        <h1>Sales Report</h1>
+        <p>Chuni hui muddat ki cash aur udhaar sales, bills aur total raqam dekhein.</p>
+        <div class="repx-hero-meta"><span>@Model.From?.ToString("dd MMM yyyy") – @Model.To?.ToString("dd MMM yyyy")</span><span>@r.Rows.Count sale records</span></div>
+    </div>
+    <div class="repx-hero-actions no-print">
+        <button type="button" class="btn repx-btn repx-btn-ghost" onclick="window.print()">Print / PDF Save Karein</button>
+        <a asp-page-handler="Csv" asp-route-From="@Model.From?.ToString("yyyy-MM-dd")" asp-route-To="@Model.To?.ToString("yyyy-MM-dd")" class="btn repx-btn repx-btn-light">Excel Ke Liye CSV Download</a>
+    </div>
+</section>
+
+<form method="get" class="repx-filter-panel no-print">
+    <div class="repx-filter-heading"><div><span class="repx-section-kicker">REPORT KI MUDDAT</span><strong>Tareekh Chunein</strong></div><span>Totals saved sales records se aate hain.</span></div>
+    <div class="repx-quick-periods">
+        <a asp-page="/Reports/Sales" asp-route-From="@today.ToString("yyyy-MM-dd")" asp-route-To="@today.ToString("yyyy-MM-dd")" class="btn repx-btn repx-btn-light">Aaj</a>
+        <a asp-page="/Reports/Sales" asp-route-From="@monthStart.ToString("yyyy-MM-dd")" asp-route-To="@today.ToString("yyyy-MM-dd")" class="btn repx-btn repx-btn-light">Is Mahine</a>
+        <a asp-page="/Reports/Sales" asp-route-From="@last30.ToString("yyyy-MM-dd")" asp-route-To="@today.ToString("yyyy-MM-dd")" class="btn repx-btn repx-btn-light">Pichlay 30 Din</a>
+    </div>
+    <div class="repx-filter-grid repx-filter-grid-period">
+        <div><label asp-for="From">Shuru Tareekh</label><input asp-for="From" type="date" class="form-control" /></div>
+        <div><label asp-for="To">Aakhri Tareekh</label><input asp-for="To" type="date" class="form-control" /></div>
+        <div class="repx-filter-actions"><button class="btn repx-btn repx-btn-primary" type="submit">Report Dekhein</button></div>
+    </div>
+</form>
+
+<div class="repx-kpi-grid repx-kpi-grid--simple">
+    <div class="repx-kpi repx-kpi-primary"><span class="repx-kpi-icon">TS</span><div><span>Total Sale</span><strong>Rs. @r.NetTotal.ToString("N0")</strong><small>@r.PostedCount saved bills</small></div></div>
+    <div class="repx-kpi repx-kpi-success"><span class="repx-kpi-icon">CS</span><div><span>Cash Sale</span><strong>Rs. @r.CashSaleValue.ToString("N0")</strong><small>Foran paid sales</small></div></div>
+    <div class="repx-kpi repx-kpi-warning"><span class="repx-kpi-icon">UD</span><div><span>Udhaar Sale</span><strong>Rs. @r.CreditIssued.ToString("N0")</strong><small>Sale ke waqt baqi rehne wali raqam</small></div></div>
+</div>
+
+<section class="repx-panel">
+    <div class="repx-panel-head"><div><span class="repx-section-kicker">SALE LIST</span><h2>Sales Ki Tafseel</h2><p>Har sale ka bill yahan se khola ja sakta hai.</p></div><span class="repx-panel-chip">@r.Rows.Count row(s)</span></div>
+    <div class="table-responsive">
+        <table class="table repx-table mb-0">
+            <thead><tr><th>Tareekh &amp; Waqt</th><th>Bill</th><th>Customer</th><th>Type</th><th class="text-end">Kul Raqam</th><th class="text-end">Baqaya Kam Hua</th><th class="text-end">Udhaar</th><th>Status</th></tr></thead>
+            <tbody>
+            @foreach (var row in r.Rows)
+            {
+                <tr>
+                    <td class="text-nowrap"><strong>@BusinessTime.ToLocal(row.Date).ToString("dd MMM yyyy")</strong><small>@BusinessTime.ToLocal(row.Date).ToString("HH:mm")</small></td>
+                    <td><a asp-page="/Sales/Details" asp-route-id="@row.Id" class="repx-reference">@row.InvoiceNo</a></td>
+                    <td><strong>@row.Customer</strong></td>
+                    <td><span class="repx-method">@(row.SaleType == SaleType.Cash ? "Cash Sale" : row.SaleType == SaleType.Credit ? "Udhaar Sale" : "Kuch Payment + Udhaar")</span></td>
+                    <td class="text-end repx-money">Rs. @row.NetTotal.ToString("N2")</td>
+                    <td class="text-end text-success">Rs. @row.PaidAtSale.ToString("N2")</td>
+                    <td class="text-end @(row.CreditAmount > 0 ? "text-danger" : "text-muted")">@(row.CreditAmount > 0 ? $"Rs. {row.CreditAmount:N2}" : "—")</td>
+                    <td><span class="repx-status @(row.Status.ToString() == "Posted" ? "is-success" : "is-danger")">@(row.Status.ToString() == "Posted" ? "Saved" : "Cancelled")</span></td>
+                </tr>
+            }
+            @if (r.Rows.Count == 0)
+            {
+                <tr><td colspan="8" class="repx-empty">Is muddat mein koi sale record nahi hui.</td></tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

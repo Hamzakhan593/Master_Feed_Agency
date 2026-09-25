@@ -1,0 +1,92 @@
+@page "{id}"
+@model Master_Feed_Agency.Pages.Admin.Users.EditModel
+@{
+    ViewData["Title"] = "Staff Details Badlein";
+    var initial = string.IsNullOrWhiteSpace(Model.Input.FullName) ? "U" : Model.Input.FullName[..1].ToUpperInvariant();
+}
+
+<div class="usrx-page usrx-form-page">
+    <section class="usrx-compact-hero">
+        <div>
+            <a asp-page="Index" class="usrx-back-link">← Staff / Access</a>
+            <div class="usrx-eyebrow">Administration · Account Settings</div>
+            <h1>Staff Details Badlein</h1>
+            <p>Update identity, role and sign-in status while preserving this user's transaction history.</p>
+        </div>
+    </section>
+
+    <div class="usrx-form-grid">
+        <section class="usrx-form-card">
+            <header class="usrx-profile-head">
+                <div class="usrx-avatar usrx-avatar-lg">@initial</div>
+                <div>
+                    <span>Staff account</span>
+                    <h2>@Model.Input.FullName</h2>
+                    <p>@Model.Input.Email</p>
+                </div>
+            </header>
+
+            <form method="post">
+                <input type="hidden" asp-for="Input.Id" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger usrx-validation"></div>
+
+                <div class="usrx-field-grid">
+                    <div class="usrx-field usrx-field-wide">
+                        <label asp-for="Input.FullName" class="form-label"></label>
+                        <input asp-for="Input.FullName" class="form-control" />
+                        <span asp-validation-for="Input.FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="usrx-field usrx-field-wide">
+                        <label asp-for="Input.Email" class="form-label"></label>
+                        <input asp-for="Input.Email" class="form-control" />
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="usrx-field usrx-field-wide">
+                        <label asp-for="Input.Role" class="form-label"></label>
+                        <select asp-for="Input.Role" asp-items="Model.RoleOptions" class="form-select"></select>
+                        <span asp-validation-for="Input.Role" class="text-danger"></span>
+                        <small>Changing the role resets permissions to the defaults for that role.</small>
+                    </div>
+                </div>
+
+                <label class="usrx-switch-card @(Model.Input.IsActive ? "usrx-switch-active" : "usrx-switch-disabled")" for="Input_IsActive">
+                    <span class="usrx-switch-copy">
+                        <strong>Account access</strong>
+                        <small>Disable sign-in without deleting the user or historical records.</small>
+                    </span>
+                    <span class="usrx-switch-state">@(Model.Input.IsActive ? "Active" : "Disabled")</span>
+                    <span class="form-check form-switch m-0">
+                        <input asp-for="Input.IsActive" class="form-check-input" />
+                    </span>
+                </label>
+
+                <div class="usrx-form-actions">
+                    <a asp-page="Index" class="btn btn-outline-secondary">Wapas Jayein</a>
+                    <button type="submit" class="btn btn-primary">Tabdeeliyan Save Karein</button>
+                </div>
+            </form>
+        </section>
+
+        <aside class="usrx-side-stack">
+            <section class="usrx-side-card">
+                <div class="usrx-side-label">Access controls</div>
+                <h3>Fine-tune this user</h3>
+                <p>Role defines the starting permission set. Individual permissions can be adjusted separately.</p>
+                <div class="usrx-side-actions">
+                    <a asp-page="Permissions" asp-route-id="@Model.Input.Id" class="btn btn-outline-primary w-100">Manage Permissions</a>
+                    <a asp-page="ResetPassword" asp-route-id="@Model.Input.Id" class="btn btn-outline-secondary w-100">Reset Password</a>
+                </div>
+            </section>
+
+            <section class="usrx-side-card usrx-side-card-warning">
+                <div class="usrx-side-label">Important</div>
+                <h3>Role change affects access</h3>
+                <p>When a role is changed, custom permissions are replaced with the defaults for the new role. Review permissions afterward when needed.</p>
+            </section>
+        </aside>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

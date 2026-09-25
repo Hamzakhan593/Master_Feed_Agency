@@ -1,0 +1,150 @@
+@page "{id:long}"
+@model Master_Feed_Agency.Pages.Payments.DetailsModel
+@using Master_Feed_Agency.Models
+@using Master_Feed_Agency.Security
+@{
+    ViewData["Title"] = "Payment Receipt";
+    var isPosted = Model.Payment.Status == PaymentStatus.Posted;
+    var initials = string.Concat(Model.Payment.Customer.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(x => char.ToUpperInvariant(x[0])));
+}
+
+<div class="payment-page payment-details-page">
+    @if (TempData["SuccessMessage"] is string success)
+    {
+        <div class="alert alert-success payment-flash-alert">@success</div>
+    }
+    @if (TempData["ErrorMessage"] is string error)
+    {
+        <div class="alert alert-danger payment-flash-alert">@error</div>
+    }
+
+    <section class="payment-page-header payment-details-header">
+        <div class="payment-page-heading">
+            <span class="payment-page-kicker">Payment Receipt</span>
+            <h1>@Model.Payment.ReceiptNo</h1>
+            <p>Wasooli ka record: @Model.Payment.Customer.Name.</p>
+        </div>
+        <div class="payment-page-actions">
+            @if (User.HasPermission(AppPermissions.ReceivePayments))
+            { <a asp-page="Create" class="btn btn-primary">Agli Payment Wasool Karein</a> }
+            <a asp-page="Receipt" asp-route-id="@Model.Payment.Id" target="_blank" class="btn btn-outline-primary payment-header-btn">Receipt Print Karein</a>
+            <a asp-page="/Customers/Details" asp-route-id="@Model.Payment.CustomerId" class="btn btn-light payment-header-btn">Customer</a>
+        </div>
+    </section>
+
+    <div class="payment-details-layout">
+        <div class="payment-details-main">
+            <section class="payment-receipt-card @(isPosted ? "is-posted" : "is-reversed")">
+                <div class="payment-receipt-hero">
+                    <div class="payment-receipt-customer">
+                        <span class="payment-details-avatar">@initials</span>
+                        <div>
+                            <span>Received from</span>
+                            <strong>@Model.Payment.Customer.Name</strong>
+                            <small>@Model.Payment.Customer.Phone</small>
+                        </div>
+                    </div>
+                    <div class="payment-receipt-amount">
+                        <span>Amount received</span>
+                        <strong>Rs. @Model.Payment.Amount.ToString("N2")</strong>
+                        <span class="payment-status-badge @(isPosted ? "is-posted" : "is-reversed")"><span></span>@(isPosted ? "Saved" : "Cancelled")</span>
+                    </div>
+                </div>
+
+                <div class="payment-detail-grid">
+                    <div><span>Receipt Number</span><strong class="font-monospace">@Model.Payment.ReceiptNo</strong></div>
+                    <div><span>Date</span><strong>@BusinessTime.ToLocal(Model.Payment.PaymentDate).ToString("dd MMM yyyy")</strong></div>
+                    <div><span>Time</span><strong>@BusinessTime.ToLocal(Model.Payment.PaymentDate).ToString("hh:mm tt")</strong></div>
+                    <div><span>Payment method</span><strong>@Model.Payment.Method</strong></div>
+                    <div><span>Customer ka Maujooda Baqaya</span><strong class="@(Model.RemainingBalance > 0m ? "text-danger" : Model.RemainingBalance < 0m ? "text-success" : null)">Rs. @Model.RemainingBalance.ToString("N2")</strong></div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Payment.Notes))
+                {
+                    <div class="payment-notes-panel">
+                        <span>Notes</span>
+                        <p>@Model.Payment.Notes</p>
+                    </div>
+                }
+            </section>
+
+            <section class="payment-panel payment-allocation-panel">
+                <div class="payment-panel-header">
+                    <div class="payment-panel-title-wrap">
+                        <span class="payment-panel-symbol">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>
+                        </span>
+                        <div>
+                            <h2>Payment Kis Bill Mein Lagi</h2>
+                            <p>Ye payment kin udhaar bills mein lagi.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="payment-allocation-body">
+                    @if (Model.Payment.Allocations.Count == 0)
+                    {
+                        <div class="payment-allocation-empty">Ye payment purane baqaye mein jama hui hai.</div>
+                    }
+                    else
+                    {
+                        <div class="payment-allocation-list">
+                            @foreach (var a in Model.Payment.Allocations)
+                            {
+                                <div class="payment-allocation-row">
+                                    <div><span>Bill</span><strong>@(a.Sale?.InvoiceNo ?? "Unallocated")</strong></div>
+                                    <div><span>Applied amount</span><strong>Rs. @a.Amount.ToString("N2")</strong></div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </section>
+
+            @if (!isPosted)
+            {
+                <section class="payment-reversed-notice">
+                    <span class="payment-reversed-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg>
+                    </span>
+                    <div><strong>Ye payment cancel ho chuki hai</strong><p>@(string.IsNullOrWhiteSpace(Model.Payment.ReversalReason) ? "Cancellation ki wajah nahi likhi gayi." : Model.Payment.ReversalReason)</p></div>
+                </section>
+            }
+        </div>
+
+        <aside class="payment-details-side">
+            <section class="payment-account-card">
+                <span class="payment-section-kicker">Customer account</span>
+                <h2>Maujooda Baqaya</h2>
+                <strong class="payment-current-balance">Rs. @Model.RemainingBalance.ToString("N2")</strong>
+                <span class="payment-balance-caption">@(Model.RemainingBalance > 0m ? "Abhi Baqaya Hai" : Model.RemainingBalance < 0m ? "Customer advance" : "Account clear")</span>
+                <div class="payment-account-actions">
+                    <a asp-page="/Customers/Details" asp-route-id="@Model.Payment.CustomerId" class="btn btn-light">Customer Profile</a>
+                    <a asp-page="/Customers/Khata" asp-route-id="@Model.Payment.CustomerId" class="btn btn-outline-primary">Customer Khata Dekhein</a>
+                </div>
+            </section>
+
+            <section class="payment-trace-card">
+                <span class="payment-section-kicker">Record Ki Tafseel</span>
+                <h2>Protected record</h2>
+                <ul>
+                    <li><span></span>Customer khata automatically update hua</li>
+                    <li><span></span>Galti ko correction se theek karein, delete se nahi</li>
+                </ul>
+            </section>
+
+            @if (isPosted && User.HasPermission(AppPermissions.ReversePayments))
+            {
+                <section class="payment-reversal-card">
+                    <span class="payment-section-kicker">Galat Entry Cancel Karein</span>
+                    <h2>Payment Cancel Karein</h2>
+                    <p>Sirf galat payment entry ko theek karne ke liye use karein. Purana record nazar aata rahega.</p>
+                    <form method="post" asp-page-handler="Reverse" asp-route-id="@Model.Payment.Id">
+                        <label asp-for="ReversalReason" class="form-label">Reason</label>
+                        <textarea asp-for="ReversalReason" class="form-control" rows="3" placeholder="Payment mein kya galti thi?" required></textarea>
+                        <button class="btn btn-danger w-100" type="submit" onclick="return confirm('Payment cancel karein? Customer ka baqaya is raqam se barh jayega.')">Payment Cancel Karein</button>
+                    </form>
+                </section>
+            }
+        </aside>
+    </div>
+</div>

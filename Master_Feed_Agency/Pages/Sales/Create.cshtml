@@ -1,0 +1,446 @@
+@page
+@model Master_Feed_Agency.Pages.Sales.CreateModel
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Nayi Sale";
+}
+
+<div class="sales-page sales-create-page">
+    <div class="sales-page-header sales-create-hero">
+        <div class="sales-page-heading">
+            <div class="sales-page-eyebrow">SALE ENTRY</div>
+            <h1>Nayi Sale</h1>
+            <p>Customer select karein, products add karein aur payment details save karein.</p>
+        </div>
+        <div class="sales-page-actions">
+            <a asp-page="/Dashboard/Index" class="btn btn-light sales-header-btn">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                Business Summary
+            </a>
+        </div>
+    </div>
+
+    <form method="post" id="saleForm" class="sales-create-form">
+        <input asp-for="Input.ClientRequestId" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger sales-validation-summary"></div>
+
+        <div class="sales-workspace">
+            <div class="sales-workspace-main">
+                <section class="sales-panel sales-customer-panel">
+                    <div class="sales-panel-header">
+                        <div>
+                            <span class="sales-step-number">1</span>
+                            <div>
+                                <h2>Customer & Payment</h2>
+                                <p>Pehle customer aur sale ka payment type choose karein.</p>
+                            </div>
+                        </div>
+                        <span class="sales-helper-badge">Udhaar sale ke liye customer select karein</span>
+                    </div>
+                    <div class="sales-panel-body">
+                        <div class="sales-customer-grid">
+                            <div>
+                                <label asp-for="Input.CustomerId" class="form-label sales-field-label">Customer</label>
+                                <select asp-for="Input.CustomerId" class="form-select sales-control" id="customerSelect" data-search data-search-label="Customer search" data-search-focus=".sales-product-cell .choice-input">
+                                    <option value="">Bina Naam Ke Cash Customer</option>
+                                    @foreach (var customer in Model.Customers)
+                                    {
+                                        <option value="@customer.Id" data-search="@customer.BusinessName" data-detail="@customer.BusinessName · Baqaya: Rs. @customer.CurrentBalance.ToString("N2")">@customer.Name — @customer.Phone</option>
+                                    }
+                                </select>
+                                <div id="customerSummary" class="sales-customer-summary"></div>
+                                <div id="creditLimitWarning" class="sales-credit-warning d-none"></div>
+                            </div>
+                            <div>
+                                <label asp-for="Input.SaleType" class="form-label sales-field-label">Payment Kaise Milegi?</label>
+                                <select asp-for="Input.SaleType" asp-items="Html.GetEnumSelectList<SaleType>()" class="form-select sales-control sales-type-native" id="saleType"></select>
+
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="sales-panel sales-items-panel">
+                    <div class="sales-panel-header sales-items-header">
+                        <div>
+                            <span class="sales-step-number">2</span>
+                            <div>
+                                <h2>Products</h2>
+                                <p>Product search karein aur quantity likhein. Enter dabane par agla product add hoga.</p>
+                            </div>
+                        </div>
+                        <div class="sales-items-header-actions">
+                            <span class="sales-line-count" id="lineCountBadge">0 items</span>
+                            <button type="button" class="btn btn-primary sales-add-item-btn" id="addRowButton">
+                                <span aria-hidden="true">+</span> Product Add Karein
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="sales-items-table-wrap">
+                        <table class="table sales-items-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="sales-col-number">#</th>
+                                    <th>Product</th>
+                                    <th class="sales-col-qty">Qty</th>
+                                    <th class="sales-col-rate">Rate</th>
+                                    <th class="sales-col-total text-end">Amount</th>
+                                    <th class="sales-col-action"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="saleLines"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="sales-items-footer">
+                        <div>
+                            <strong>Sale Ki Maloomat</strong>
+                            <span>Product select karte hi default rate automatically aa jayega.</span>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-light border" id="addRowButtonSecondary">+ Aur Product Add Karein</button>
+                    </div>
+                </section>
+
+                <details class="ux-extra"><summary>Note Add Karein (Optional)</summary>
+                    <label asp-for="Input.Notes">Bill ya delivery ka note</label>
+                    <textarea asp-for="Input.Notes" class="form-control" rows="2"></textarea>
+                    <span asp-validation-for="Input.Notes" class="text-danger"></span>
+                </details>
+            </div>
+
+            <aside class="sales-summary-column">
+                <div class="sales-summary-card">
+                    <div class="sales-summary-head">
+                        <div>
+                            <span>Bill Aur Payment</span>
+                            <strong id="saleTypePill">Cash sale</strong>
+                        </div>
+                        <div class="sales-summary-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M7 3h10a2 2 0 0 1 2 2v16l-3-2-4 2-4-2-3 2V5a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8 8h8M8 12h8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                        </div>
+                    </div>
+
+                    <div class="sales-summary-totals">
+                        <div class="sales-summary-row">
+                            <span>Products Ka Total</span>
+                            <strong id="grossTotal">Rs. 0.00</strong>
+                        </div>
+
+                        <details class="ux-extra"><summary>Discount Dein (Optional)</summary><div class="sales-summary-input-row">
+                            <label asp-for="Input.Discount" class="form-label sales-field-label"></label>
+                            <div class="input-group sales-money-input">
+                                <span class="input-group-text">Rs.</span>
+                                <input asp-for="Input.Discount" class="form-control text-end" id="discountInput" inputmode="decimal" />
+                            </div>
+                            <span asp-validation-for="Input.Discount" class="text-danger small"></span>
+                        </div>
+
+                        </details>
+                        <div class="sales-summary-row sales-summary-net">
+                            <span>Total Bill</span>
+                            <strong id="netTotal">Rs. 0.00</strong>
+                        </div>
+                    </div>
+
+                    <div class="sales-summary-row ux-received-row"><span>Abhi Mili Payment</span><strong id="receivedNow">Rs. 0.00</strong></div>
+                    <div id="paymentFields" class="sales-payment-box">
+                        <div class="sales-payment-grid">
+                            <div id="paidAtSaleGroup">
+                                <label asp-for="Input.PaidAtSale" class="form-label sales-field-label"></label>
+                                <div class="input-group sales-money-input">
+                                    <span class="input-group-text">Rs.</span>
+                                    <input asp-for="Input.PaidAtSale" class="form-control text-end" id="paidAtSale" inputmode="decimal" />
+                                </div>
+                                <span asp-validation-for="Input.PaidAtSale" class="text-danger small"></span>
+                            </div>
+
+                            <div id="paymentMethodGroup">
+                                <label asp-for="Input.PaymentMethod" class="form-label sales-field-label"></label>
+                                <select asp-for="Input.PaymentMethod" asp-items="Html.GetEnumSelectList<PaymentMethod>()" class="form-select sales-control"></select>
+                            </div>
+
+                            <div id="dueDateGroup">
+                                <label asp-for="Input.DueDate" class="form-label sales-field-label"></label>
+                                <input asp-for="Input.DueDate" class="form-control sales-control" id="dueDateInput" />
+                                <span asp-validation-for="Input.DueDate" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="sales-credit-total">
+                            <span>Baqi Udhaar</span>
+                            <strong id="creditAmount">Rs. 0.00</strong>
+                        </div>
+                    </div>
+
+                    @if (User.HasPermission(AppPermissions.OverrideNegativeStock))
+                    {
+                        <details class="ux-extra"><summary>Owner Ka Stock Override</summary><div class="sales-override-box">
+                            <div class="form-check mb-0">
+                                <input asp-for="Input.AllowNegativeStockOverride" class="form-check-input" />
+                                <label asp-for="Input.AllowNegativeStockOverride" class="form-check-label fw-semibold"></label>
+                            </div>
+                            <p>Sirf owner ki ijazat se available stock se zyada sale karein.</p>
+                        </div></details>
+                    }
+
+                    <div class="sales-integrity-note">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 2.8 8.1 7 10 4.2-1.9 7-5.4 7-10V6l-7-3Z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m9 12 2 2 4-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <div>
+                            <strong>Sale Save Karein</strong>
+                            <span>Save karne par bill, khata aur stock update ho jayega.</span>
+                        </div>
+                    </div>
+
+                    <div class="sales-summary-actions">
+                        <button type="submit" class="btn btn-primary btn-lg" id="postSaleButton">
+                            <span>Sale Save Karein</span>
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                        <a asp-page="/Dashboard/Index" class="btn btn-light border">Wapas</a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </form>
+</div>
+
+<script type="application/json" id="productData">@Html.Raw(JsonSerializer.Serialize(Model.Products))</script>
+<script type="application/json" id="customerData">@Html.Raw(JsonSerializer.Serialize(Model.Customers))</script>
+<script type="application/json" id="initialLineData">@Html.Raw(JsonSerializer.Serialize(Model.Input.Items))</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const products = JSON.parse(document.getElementById('productData').textContent || '[]');
+            const customers = JSON.parse(document.getElementById('customerData').textContent || '[]');
+            const initialItems = JSON.parse(document.getElementById('initialLineData').textContent || '[]');
+            const tbody = document.getElementById('saleLines');
+            const customerSelect = document.getElementById('customerSelect');
+            const customerSummary = document.getElementById('customerSummary');
+            const creditLimitWarning = document.getElementById('creditLimitWarning');
+            const saleType = document.getElementById('saleType');
+            const saleTypePill = document.getElementById('saleTypePill');
+            const paidAtSale = document.getElementById('paidAtSale');
+            const discountInput = document.getElementById('discountInput');
+            const dueDateInput = document.getElementById('dueDateInput');
+            const paymentMethodGroup = document.getElementById('paymentMethodGroup');
+            const paidAtSaleGroup = document.getElementById('paidAtSaleGroup');
+            const dueDateGroup = document.getElementById('dueDateGroup');
+            const form = document.getElementById('saleForm');
+            const postButton = document.getElementById('postSaleButton');
+            const lineCountBadge = document.getElementById('lineCountBadge');
+
+            const money = value => `Rs. ${(Number(value) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            const number = value => Number.parseFloat(value) || 0;
+
+            function productOptions(selectedId) {
+                let html = '<option value="">Select product</option>';
+                for (const p of products) {
+                    const selected = Number(selectedId) === Number(p.Id) ? ' selected' : '';
+                    html += `<option value="${p.Id}" data-detail="${escapeHtml(money(p.DefaultSalePrice))} · Stock: ${p.CurrentStock} ${escapeHtml(p.Unit)}"${selected}>${escapeHtml(p.Name)} (${escapeHtml(p.Code)})</option>`;
+                }
+                return html;
+            }
+
+            function escapeHtml(value) {
+                return String(value ?? '')
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;')
+                    .replaceAll('"', '&quot;')
+                    .replaceAll("'", '&#039;');
+            }
+
+            function addRow(item = {}, focus = false) {
+                const row = document.createElement('tr');
+                row.className = 'sales-item-row';
+                row.innerHTML = `
+                    <td class="sales-line-number"><span></span></td>
+                    <td class="sales-product-cell">
+                        <select class="form-select product-select sales-control">${productOptions(item.ProductId)}</select>
+                        <div class="stock-note sales-stock-note"></div>
+                    </td>
+                    <td><input type="number" required min="0.001" step="0.001" class="form-control quantity sales-control text-end" value="${item.Quantity || 1}" inputmode="decimal" /></td>
+                    <td><div class="input-group sales-money-input"><span class="input-group-text">Rs.</span><input type="number" required min="0.01" step="0.01" class="form-control rate text-end" value="${item.Rate || ''}" inputmode="decimal" /></div></td>
+                    <td class="text-end"><strong class="line-total sales-line-total">Rs. 0.00</strong></td>
+                    <td class="text-end"><button type="button" class="btn sales-remove-row remove-row" aria-label="Remove item" title="Remove item">×</button></td>`;
+
+                tbody.appendChild(row);
+                const select = row.querySelector('.product-select');
+                const qty = row.querySelector('.quantity');
+                const rate = row.querySelector('.rate');
+
+                select.addEventListener('change', () => {
+                    const p = products.find(x => Number(x.Id) === Number(select.value));
+                    if (p) {
+                        rate.value = Number(p.DefaultSalePrice).toFixed(2);
+                        updateStockNote(row, p, number(qty.value));
+                    } else {
+                        row.querySelector('.stock-note').textContent = '';
+                        row.querySelector('.stock-note').classList.remove('is-low');
+                    }
+                    recalculate();
+                });
+                const search = window.AgencySearch.enhance(select, {required:true,label:'Product search', placeholder:'Product ka naam ya code', onChoose:option=>{if(option.value){qty.focus();qty.select();}}});
+                qty.addEventListener('keydown', event => {if(event.key==='Enter'){event.preventDefault();addRow({}, true);}});
+                rate.addEventListener('keydown', event => {if(event.key==='Enter'){event.preventDefault();addRow({}, true);}});
+                qty.addEventListener('input', () => {
+                    const p = products.find(x => Number(x.Id) === Number(select.value));
+                    if (p) updateStockNote(row, p, number(qty.value));
+                    recalculate();
+                });
+                rate.addEventListener('input', recalculate);
+                row.querySelector('.remove-row').addEventListener('click', () => {
+                    search.destroy();
+                    row.remove();
+                    reindexRows();
+                    recalculate();
+                });
+
+                if (select.value) {
+                    const p = products.find(x => Number(x.Id) === Number(select.value));
+                    if (p) {
+                        updateStockNote(row, p, number(qty.value));
+                        if (!rate.value || number(rate.value) === 0) rate.value = Number(p.DefaultSalePrice).toFixed(2);
+                    }
+                }
+
+                reindexRows();
+                recalculate();
+                if(focus) search.input.focus();
+            }
+
+            function updateStockNote(row, product, requestedQty) {
+                const note = row.querySelector('.stock-note');
+                note.textContent = `Available: ${product.CurrentStock} ${product.Unit}`;
+                note.classList.toggle('is-low', requestedQty > Number(product.CurrentStock));
+                if (requestedQty > Number(product.CurrentStock)) {
+                    note.textContent += ' — quantity available stock se zyada hai';
+                }
+            }
+
+            function reindexRows() {
+                const rows = [...tbody.querySelectorAll('tr')];
+                rows.forEach((row, index) => {
+                    row.querySelector('.product-select').name = `Input.Items[${index}].ProductId`;
+                    row.querySelector('.quantity').name = `Input.Items[${index}].Quantity`;
+                    row.querySelector('.rate').name = `Input.Items[${index}].Rate`;
+                    row.querySelector('.sales-line-number span').textContent = index + 1;
+                });
+                lineCountBadge.textContent = `${rows.length} ${rows.length === 1 ? 'item' : 'items'}`;
+            }
+
+            function recalculate() {
+                let gross = 0;
+                [...tbody.querySelectorAll('tr')].forEach(row => {
+                    const qty = number(row.querySelector('.quantity').value);
+                    const rate = number(row.querySelector('.rate').value);
+                    const line = qty * rate;
+                    gross += line;
+                    row.querySelector('.line-total').textContent = money(line);
+                });
+
+                const discount = Math.max(0, number(discountInput.value));
+                const net = Math.max(0, gross - discount);
+                let paid = number(paidAtSale.value);
+                const type = Number(saleType.value);
+
+                if (type === @((int)SaleType.Cash)) paid = net;
+                if (type === @((int)SaleType.Credit)) paid = 0;
+
+                const remainingCredit = Math.max(0, net - paid);
+                document.getElementById('grossTotal').textContent = money(gross);
+                document.getElementById('netTotal').textContent = money(net);
+                document.getElementById('creditAmount').textContent = money(remainingCredit);
+                document.getElementById('receivedNow').textContent = money(paid);
+                updateCreditLimitWarning(remainingCredit);
+            }
+
+            function updateCreditLimitWarning(remainingCredit) {
+                const customer = customers.find(x => Number(x.Id) === Number(customerSelect.value));
+                creditLimitWarning.classList.add('d-none');
+                creditLimitWarning.textContent = '';
+
+                if (!customer || Number(customer.CreditLimit) <= 0 || remainingCredit <= 0) return;
+
+                const projected = Number(customer.CurrentBalance) + Number(remainingCredit);
+                if (projected > Number(customer.CreditLimit)) {
+                    creditLimitWarning.textContent = `Udhaar limit se zyada: naya baqaya ${money(projected)} vs limit ${money(customer.CreditLimit)}. Raqam ya payment badlein.`;
+                    creditLimitWarning.classList.remove('d-none');
+                }
+            }
+
+            function updateSaleTypeUi() {
+                const type = Number(saleType.value);
+                const isCash = type === @((int)SaleType.Cash);
+                const isCredit = type === @((int)SaleType.Credit);
+                const isPart = type === @((int)SaleType.PartPaymentCredit);
+
+                paidAtSaleGroup.classList.toggle('d-none', !isPart);
+                paymentMethodGroup.classList.toggle('d-none', isCredit);
+                dueDateGroup.classList.toggle('d-none', isCash);
+
+                if (isCredit || isCash) paidAtSale.value = '0';
+
+                saleTypePill.textContent = isCash ? 'Cash Sale' : (isCredit ? 'Udhaar Sale' : 'Kuch Payment + Udhaar');
+                saleTypePill.classList.toggle('is-credit', isCredit || isPart);
+                recalculate();
+            }
+
+            let manualDueDate = !!dueDateInput.value;
+            dueDateInput.addEventListener('input',()=>manualDueDate=true);
+            function updateCustomerSummary(setSuggestedDueDate = false) {
+                const customer = customers.find(x => Number(x.Id) === Number(customerSelect.value));
+                if (!customer) {
+                    customerSummary.innerHTML = '<span class="sales-summary-dot"></span><span>Customer ka naam diye baghair sirf poori payment wali cash sale ho sakti hai.</span>';
+                    creditLimitWarning.classList.add('d-none');
+                    creditLimitWarning.textContent = '';
+                    return;
+                }
+
+                const limitText = Number(customer.CreditLimit) > 0 ? money(customer.CreditLimit) : 'Koi limit nahi';
+                customerSummary.innerHTML = `<span><strong>Baqaya Raqam:</strong> ${money(customer.CurrentBalance)}</span><span><strong>Udhaar Limit:</strong> ${limitText}</span><span><strong>Payment Ke Din:</strong> ${customer.DefaultCreditDays} days</span>`;
+
+                updateCreditLimitWarning(number(document.getElementById('creditAmount').textContent.replace(/[^0-9.-]/g, '')));
+
+                if (setSuggestedDueDate && !manualDueDate && Number(customer.DefaultCreditDays) >= 0) {
+                    const d = new Date('@BusinessTime.Today.ToString("yyyy-MM-dd")T12:00:00');
+                    d.setDate(d.getDate() + Number(customer.DefaultCreditDays));
+                    const yyyy = d.getFullYear();
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    dueDateInput.value = `${yyyy}-${mm}-${dd}`;
+                }
+            }
+
+            document.getElementById('addRowButton').addEventListener('click', () => addRow({}, true));
+            document.getElementById('addRowButtonSecondary').addEventListener('click', () => addRow({}, true));
+            saleType.addEventListener('change', updateSaleTypeUi);
+            customerSelect.addEventListener('change', () => updateCustomerSummary(true));
+            paidAtSale.addEventListener('input', recalculate);
+            discountInput.addEventListener('input', recalculate);
+
+            if (initialItems.length > 0) initialItems.forEach(item=>addRow(item)); else addRow();
+            updateSaleTypeUi();
+            updateCustomerSummary(false);
+
+            form.addEventListener('submit', event => {
+                reindexRows();
+                let valid = true;
+                const rows = [...tbody.querySelectorAll('tr')];
+                if(!rows.length){event.preventDefault();addRow({},true);return;}
+                rows.forEach(row=>{
+                    const select=row.querySelector('.product-select');
+                    select._search.input.setCustomValidity(select.value ? '' : 'Product search karke select karein.');
+                    if(!select.value) valid=false;
+                });
+                if(Number(saleType.value)!==@((int)SaleType.Cash) && !customerSelect.value){
+                    customerSelect._search?.input.setCustomValidity('Udhaar ke liye customer select karein.');valid=false;
+                }
+                if(!valid || !form.reportValidity() || (window.jQuery && !window.jQuery(form).valid())){event.preventDefault();return;}
+            });
+        })();
+    </script>
+}

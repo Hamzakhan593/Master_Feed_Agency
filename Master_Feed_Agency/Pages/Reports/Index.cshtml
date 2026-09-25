@@ -1,0 +1,79 @@
+@page
+@model Master_Feed_Agency.Pages.Reports.IndexModel
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<section class="repx-hero repx-hero-home">
+    <div class="repx-hero-copy">
+        <div class="repx-eyebrow">SIMPLE BUSINESS REPORTS</div>
+        <h1>Reports</h1>
+        <p>Sirf woh reports jo agency ko rozana kaam mein chahiye: sales, customer udhaar aur stock.</p>
+        <div class="repx-hero-meta">
+            <span>Daily / Monthly Sales</span>
+            <span>Customer Baqaya</span>
+            <span>Available Stock</span>
+        </div>
+    </div>
+    <div class="repx-hero-actions no-print">
+        <a asp-page="/Dashboard/Index" class="btn repx-btn repx-btn-light">Business Summary</a>
+    </div>
+</section>
+
+<div class="repx-home-summary">
+    <div>
+        <span class="repx-home-summary-icon">01</span>
+        <div><strong>Sales</strong><small>Aaj, is mahine ya kisi bhi date range ki sale dekhein.</small></div>
+    </div>
+    <div>
+        <span class="repx-home-summary-icon">02</span>
+        <div><strong>Udhaar</strong><small>Kis customer se kitni raqam leni hai dekhein.</small></div>
+    </div>
+    <div>
+        <span class="repx-home-summary-icon">03</span>
+        <div><strong>Stock</strong><small>Kitna maal available hai aur kya kam ho raha hai dekhein.</small></div>
+    </div>
+</div>
+
+<section class="repx-home-section">
+    <div class="repx-section-heading">
+        <div>
+            <span class="repx-section-kicker">CORE REPORTS</span>
+            <h2>Business Reports</h2>
+        </div>
+        <span class="repx-section-note">Sale, udhaar aur stock ki reports</span>
+    </div>
+
+    <div class="repx-report-grid repx-report-grid--simple">
+        <a asp-page="/Reports/Sales" class="repx-report-card repx-report-card-primary">
+            <div class="repx-report-card-top"><span class="repx-report-icon">SL</span><span class="repx-report-arrow">→</span></div>
+            <h3>Sales Report</h3>
+            <p>Daily, monthly ya custom date range mein cash aur udhaar sales ka total aur bills dekhein.</p>
+            <div class="repx-report-tags"><span>Today</span><span>This Month</span><span>Cash/Udhaar</span></div>
+        </a>
+
+        <a asp-page="/Reports/Credit" class="repx-report-card repx-report-card-warning">
+            <div class="repx-report-card-top"><span class="repx-report-icon">UD</span><span class="repx-report-arrow">→</span></div>
+            <h3>Udhaar Report</h3>
+            <p>Total baqaya aur overdue customers dekhein. Customer ka poora khata Customers screen se khulta hai.</p>
+            <div class="repx-report-tags"><span>Baqaya</span><span>Overdue</span><span>Customer</span></div>
+        </a>
+
+        <a asp-page="/Reports/Stock" class="repx-report-card repx-report-card-purple">
+            <div class="repx-report-card-top"><span class="repx-report-icon">ST</span><span class="repx-report-arrow">→</span></div>
+            <h3>Stock Report</h3>
+            <p>Product ki opening, aana/jana aur closing stock quantity dekhein.</p>
+            <div class="repx-report-tags"><span>Products</span><span>Stock</span><span>Low Stock</span></div>
+        </a>
+    </div>
+</section>
+
+<section class="repx-statement-callout">
+    <div class="repx-statement-icon">KH</div>
+    <div class="repx-statement-copy">
+        <span class="repx-section-kicker">CUSTOMER KHATA</span>
+        <h2>Customer Khata Dekhein</h2>
+        <p>Customer search karein aur “Customer Khata Dekhein” par click karein.</p>
+    </div>
+    <a asp-page="/Customers/Index" class="btn repx-btn repx-btn-primary">Customers Kholein</a>
+</section>

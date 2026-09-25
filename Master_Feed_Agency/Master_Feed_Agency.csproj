@@ -1,0 +1,80 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>MasterFeedAgency-Development-2026</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+
+  <!-- Old ZIP overlays can leave deleted files behind. Exclude retired modules
+       from compilation, Razor generation and publishing as a compatibility guard.
+       The release archive itself physically omits all of these files. -->
+  <ItemGroup>
+    <RetiredModuleFile Include="Data/DemoDataSeeder.cs;
+                               Models/AuditLog.cs;
+                               Models/CashTransaction.cs;
+                               Models/CashTransactionType.cs;
+                               Models/DailyClosing.cs;
+                               Models/Expense.cs;
+                               Models/ExpenseCategory.cs;
+                               Models/ExpenseStatus.cs;
+                               Models/NotificationChannel.cs;
+                               Models/NotificationMessage.cs;
+                               Models/NotificationStatus.cs;
+                               Models/NotificationType.cs;
+                               Models/Owner.cs;
+                               Models/OwnerTransaction.cs;
+                               Models/OwnerTransactionStatus.cs;
+                               Models/OwnerTransactionType.cs;
+                               Pages/Audit/**;
+                               Pages/Cashbook/**;
+                               Pages/Credit/**;
+                               Pages/Expenses/**;
+                               Pages/Ledger/**;
+                               Pages/Notifications/**;
+                               Pages/Owners/**;
+                               Pages/Payments/Index.cshtml;
+                               Pages/Payments/Index.cshtml.cs;
+                               Pages/Privacy.cshtml;
+                               Pages/Privacy.cshtml.cs;
+                               Pages/Reports/Cashbook.cshtml;
+                               Pages/Reports/Cashbook.cshtml.cs;
+                               Pages/Reports/Expenses.cshtml;
+                               Pages/Reports/Expenses.cshtml.cs;
+                               Pages/Reports/Owners.cshtml;
+                               Pages/Reports/Owners.cshtml.cs;
+                               Pages/Reports/Recovery.cshtml;
+                               Pages/Reports/Recovery.cshtml.cs;
+                               Pages/Reports/UserActivity.cshtml;
+                               Pages/Reports/UserActivity.cshtml.cs;
+                               Pages/Sales/Index.cshtml;
+                               Pages/Sales/Index.cshtml.cs;
+                               Services/AuditService.cs;
+                               Services/CashbookService.cs;
+                               Services/DevelopmentNotificationProvider.cs;
+                               Services/ExpenseService.cs;
+                               Services/INotificationProvider.cs;
+                               Services/NotificationBackgroundService.cs;
+                               Services/NotificationOptions.cs;
+                               Services/NotificationScheduler.cs;
+                               Services/NotificationService.cs;
+                               Services/OwnerMoneyService.cs" />
+    <Compile Remove="@(RetiredModuleFile)" />
+    <Content Remove="@(RetiredModuleFile)" />
+    <None Remove="@(RetiredModuleFile)" />
+    <EmbeddedResource Remove="@(RetiredModuleFile)" />
+    <RazorGenerate Remove="@(RetiredModuleFile)" />
+  </ItemGroup>
+
+</Project>

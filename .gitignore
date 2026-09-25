@@ -1,0 +1,20 @@
+# Build outputs
+**/bin/
+**/obj/
+**/Deploy/Windows/publish/
+
+# Local/production secrets
+**/appsettings.Production.json
+**/*.env
+!**/*.env.example
+
+# Backup artifacts - never commit agency database backups
+**/Backups/
+**/*.bak
+
+# Local logs/temp
+**/logs/
+**/*.log
+*.user
+*.suo
+.vs/

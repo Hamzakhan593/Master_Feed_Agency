@@ -1,0 +1,32 @@
+@page
+@model Master_Feed_Agency.Pages.Account.AccessDeniedModel
+@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<div class="authx-denied-shell">
+    <section class="authx-denied-card">
+        <div class="authx-denied-code">403</div>
+        <div class="authx-denied-icon">!</div>
+        <span class="authx-eyebrow">Permission required</span>
+        <h1>Access denied</h1>
+        <p>Your account is signed in, but it does not have permission to open this area or perform this action.</p>
+
+        <div class="authx-denied-note">
+            <span>i</span>
+            <div><strong>This is a security control</strong><small>If you need access for your job, ask the Owner to review your role or individual permissions.</small></div>
+        </div>
+
+        <div class="authx-denied-actions">
+            <a asp-page="/Index" class="btn btn-primary">Back to workspace</a>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a asp-page="/Account/ChangePassword" class="btn btn-outline-secondary">Account security</a>
+            }
+            else
+            {
+                <a asp-page="/Account/Login" class="btn btn-outline-secondary">Sign in</a>
+            }
+        </div>
+    </section>
+</div>

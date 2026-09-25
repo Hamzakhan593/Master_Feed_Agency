@@ -1,0 +1,80 @@
+@using Master_Feed_Agency.Security
+
+<nav class="app-nav" aria-label="Primary navigation">
+    <div class="app-nav-section app-nav-section--daily">
+        <div class="app-nav-label">Main Menu</div>
+
+        @if (User.HasPermission(AppPermissions.ViewDashboard))
+        {
+            <a class="app-nav-link" asp-page="/Dashboard/Index" data-nav-path="/Dashboard">
+                <span class="app-nav-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v10h-6zM4 14h6v6H4zM14 18h6v2h-6z" /></svg>
+                </span>
+                <span>Business Summary</span>
+            </a>
+        }
+
+        @if (User.HasPermission(AppPermissions.CreateSales))
+        {
+            <a class="app-nav-link app-nav-link--featured app-nav-link--sale" asp-page="/Sales/Create" data-nav-path="/Sales/Create">
+                <span class="app-nav-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
+                </span>
+                <span>Nayi Sale</span>
+            </a>
+        }
+
+        @if (User.HasPermission(AppPermissions.ReceivePayments))
+        {
+            <a class="app-nav-link app-nav-link--featured app-nav-link--payment" asp-page="/Payments/Create" data-nav-path="/Payments/Create">
+                <span class="app-nav-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 9h18M8 15h3M17 13v4M15 15h4" /></svg>
+                </span>
+                <span>Payment Wasool Karein</span>
+            </a>
+        }
+
+        @if (User.HasPermission(AppPermissions.ViewCustomers))
+        {
+            <a class="app-nav-link" asp-page="/Customers/Index" data-nav-path="/Customers">
+                <span class="app-nav-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M17 8a3 3 0 0 1 0 6M19 15.5a3.5 3.5 0 0 1 1 2.5V20" /></svg>
+                </span>
+                <span>Customers</span>
+            </a>
+        }
+
+        @if (User.HasPermission(AppPermissions.ViewProducts))
+        {
+            <a class="app-nav-link" asp-page="/Products/Index" data-nav-path="/Products">
+                <span class="app-nav-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="m4 7 8-4 8 4-8 4zM4 7v10l8 4 8-4V7M12 11v10" /></svg>
+                </span>
+                <span>Products / Stock</span>
+            </a>
+        }
+
+        @if (User.HasPermission(AppPermissions.ViewReports))
+        {
+            <a class="app-nav-link" asp-page="/Reports/Index" data-nav-path="/Reports">
+                <span class="app-nav-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></svg>
+                </span>
+                <span>Reports</span>
+            </a>
+        }
+    </div>
+
+    @if (User.HasPermission(AppPermissions.ManageUsers))
+    {
+        <div class="app-nav-section app-nav-section--admin">
+            <div class="app-nav-label">Settings</div>
+            <a class="app-nav-link" asp-page="/Admin/Users/Index" data-nav-path="/Admin/Users">
+                <span class="app-nav-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="4" /><path d="M2 21v-2a7 7 0 0 1 12-5M18 13v6M15 16h6" /></svg>
+                </span>
+                <span>Staff / Access</span>
+            </a>
+        </div>
+    }
+</nav>

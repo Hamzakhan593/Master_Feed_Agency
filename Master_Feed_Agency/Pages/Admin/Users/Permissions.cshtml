@@ -1,0 +1,83 @@
+@page "{id}"
+@model Master_Feed_Agency.Pages.Admin.Users.PermissionsModel
+@{
+    ViewData["Title"] = "Staff Ki Ijazat";
+    var selectedCount = Model.PermissionOptions.Count(x => x.IsSelected);
+    var totalCount = Model.PermissionOptions.Count;
+    var initial = string.IsNullOrWhiteSpace(Model.TargetUserName) ? "U" : Model.TargetUserName[..1].ToUpperInvariant();
+}
+
+<div class="usrx-page">
+    <section class="usrx-perm-hero">
+        <div class="usrx-perm-person">
+            <div class="usrx-avatar usrx-avatar-lg">@initial</div>
+            <div>
+                <a asp-page="Index" class="usrx-back-link">← Staff / Access</a>
+                <div class="usrx-eyebrow">Staff Ki Ijazat</div>
+                <h1>@Model.TargetUserName</h1>
+                <div class="usrx-perm-meta">
+                    <span class="usrx-role-badge usrx-badge-neutral">@Model.TargetRole</span>
+                    <span>@selectedCount of @totalCount permissions granted</span>
+                </div>
+            </div>
+        </div>
+        <form method="post" asp-page-handler="ResetDefaults" asp-route-id="@Model.TargetUserId">
+            <button type="submit" class="btn btn-light usrx-reset-defaults">Role Ki Ijazat Wapas Lagayein</button>
+        </form>
+    </section>
+
+    <div class="usrx-perm-notice">
+        <div class="usrx-security-icon">✓</div>
+        <div><strong>Staff Ko Zaroori Access Dein</strong><p>Jo kaam staff member ko karna hai, sirf uski ijazat select karein.</p></div>
+    </div>
+
+    <form method="post" class="usrx-perm-form">
+        <input type="hidden" asp-for="TargetUserId" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger usrx-validation"></div>
+
+        <div class="usrx-perm-toolbar">
+            <div>
+                <span>Access profile</span>
+                <strong>Ijazat Select Karein</strong>
+            </div>
+            <div class="usrx-perm-counter"><strong>@selectedCount</strong><span>currently granted</span></div>
+        </div>
+
+        <div class="usrx-perm-groups">
+        @foreach (var group in Model.PermissionOptions.GroupBy(x => x.Group))
+        {
+            var groupSelected = group.Count(x => x.IsSelected);
+            <section class="usrx-perm-group">
+                <header>
+                    <div>
+                        <span class="usrx-perm-group-mark">@group.Key[..1]</span>
+                        <div><h2>@group.Key</h2><p>@groupSelected of @group.Count() enabled</p></div>
+                    </div>
+                    <span class="usrx-perm-group-count">@group.Count()</span>
+                </header>
+                <div class="usrx-perm-list">
+                    @foreach (var item in group)
+                    {
+                        <label class="usrx-perm-item" for="perm_@item.SafeId">
+                            <span class="usrx-perm-copy">
+                                <strong>@item.Label</strong>
+                            </span>
+                            <span class="form-check form-switch m-0">
+                                <input class="form-check-input" type="checkbox" name="SelectedPermissions" value="@item.Value" id="perm_@item.SafeId" checked="@item.IsSelected" />
+                            </span>
+                        </label>
+                    }
+                </div>
+            </section>
+        }
+        </div>
+
+        <div class="usrx-sticky-actions">
+            <div><strong>Access Save Karein</strong><span>Nayi ijazat agle page par apply ho jayegi.</span></div>
+            <div>
+                <a asp-page="Index" class="btn btn-outline-secondary">Wapas Jayein</a>
+                <button type="submit" class="btn btn-primary">Ijazat Save Karein</button>
+            </div>
+        </div>
+    </form>
+</div>
