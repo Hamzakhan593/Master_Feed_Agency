@@ -6,6 +6,381 @@
     var activeCount = Model.Customers.Count(x => x.IsActive);
 }
 
+<style>
+    /* Customer list polish - scoped to this page only so the rest of the app stays unchanged. */
+    .customer-page--index .customer-list-panel {
+        overflow: hidden;
+    }
+
+    .customer-page--index .customer-list-heading {
+        background: #f2f5ec;
+        border-bottom-color: #c6cfbe;
+        padding: 20px 24px;
+    }
+
+    .customer-page--index .customer-list-heading h2 {
+        margin: 0;
+        font-size: 1.18rem;
+    }
+
+    .customer-page--index .customer-list-count {
+        display: inline-flex;
+        align-items: center;
+        min-height: 34px;
+        padding: 6px 11px;
+        border: 1px solid #c7d0bf;
+        border-radius: 8px;
+        background: #fff;
+        color: #4f5d4d;
+        font-size: .78rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .customer-page--index .customer-table {
+        table-layout: fixed;
+        min-width: 1040px;
+    }
+
+    .customer-page--index .customer-table th {
+        padding: 14px 20px;
+        background: #eeeedf;
+        color: #4b563e;
+        font-size: .78rem;
+        font-weight: 700;
+    }
+
+    .customer-page--index .customer-table td {
+        padding: 18px 20px;
+        border-color: #dfe4da;
+        vertical-align: middle;
+    }
+
+    .customer-page--index .customer-table tbody tr {
+        background: #fff;
+        transition: background-color .15s ease;
+    }
+
+    .customer-page--index .customer-table tbody tr:hover {
+        background: #f8faf5;
+    }
+
+    .customer-page--index .customer-person-cell {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        min-width: 0;
+    }
+
+    .customer-page--index .customer-table .customer-avatar {
+        display: grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        border: 1px solid #c8d5c2;
+        border-radius: 11px;
+        background: #e5eddb;
+        color: #226348;
+        font-size: .82rem;
+        font-weight: 750;
+        letter-spacing: .02em;
+    }
+
+    .customer-page--index .customer-person-cell > div,
+    .customer-page--index .customer-contact-cell {
+        min-width: 0;
+    }
+
+    .customer-page--index .customer-name-link {
+        display: block;
+        color: #165d40;
+        font-size: .96rem;
+        font-weight: 700;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+
+    .customer-page--index .customer-name-link:hover {
+        color: #124d36;
+    }
+
+    .customer-page--index .customer-person-cell > div > span,
+    .customer-page--index .customer-contact-cell span {
+        display: block;
+        margin-top: 4px;
+        color: #677064;
+        font-size: .78rem;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+    }
+
+    .customer-page--index .customer-contact-cell {
+        display: block;
+    }
+
+    .customer-page--index .customer-contact-cell strong {
+        display: block;
+        color: #26332a;
+        font-size: .9rem;
+        font-weight: 650;
+        line-height: 1.35;
+        font-variant-numeric: tabular-nums;
+        overflow-wrap: anywhere;
+    }
+
+    .customer-page--index .customer-balance-cell {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    .customer-page--index .customer-balance-cell strong {
+        display: block;
+        font-size: .97rem;
+        font-weight: 750;
+        line-height: 1.25;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .customer-page--index .customer-balance-cell span {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: .7rem;
+        font-weight: 650;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    .customer-page--index .customer-balance-cell.is-due strong {
+        color: #7b531b;
+    }
+
+    .customer-page--index .customer-balance-cell.is-due span {
+        background: #fff4d9;
+        color: #76511d;
+    }
+
+    .customer-page--index .customer-balance-cell.is-advance strong {
+        color: #226348;
+    }
+
+    .customer-page--index .customer-balance-cell.is-advance span {
+        background: #e5eddb;
+        color: #226348;
+    }
+
+    .customer-page--index .customer-balance-cell.is-clear strong {
+        color: #4f5d4d;
+    }
+
+    .customer-page--index .customer-balance-cell.is-clear span {
+        background: #f0f2ec;
+        color: #596457;
+    }
+
+    .customer-page--index .customer-status-badge {
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: .72rem;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .customer-page--index .customer-status-badge > span {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .customer-page--index .customer-row-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .customer-page--index .customer-row-actions .btn {
+        min-height: 38px;
+        padding: 8px 12px;
+        border-radius: 9px;
+        font-size: .78rem;
+        white-space: nowrap;
+    }
+
+    .customer-page--index .customer-row-actions .btn-light {
+        background: #fff;
+    }
+
+    .customer-page--index .customer-row-actions .btn-light:hover {
+        border-color: #8ea185;
+        background: #f7faf4;
+        color: #194f39;
+    }
+
+    .customer-page--index .customer-empty-state {
+        padding: 44px 24px;
+    }
+
+    @@media (max-width: 1180px) {
+        .customer-page--index .customer-table {
+            min-width: 960px;
+        }
+
+        .customer-page--index .customer-table th,
+        .customer-page--index .customer-table td {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        .customer-page--index .customer-row-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .customer-page--index .customer-row-actions .btn {
+            width: 100%;
+        }
+    }
+
+    @@media (max-width: 767px) {
+        .customer-page--index .customer-list-heading {
+            align-items: flex-start;
+            padding: 17px;
+        }
+
+        .customer-page--index .customer-table-wrap {
+            overflow: visible;
+            padding: 12px;
+            background: #f5f7f1;
+        }
+
+        .customer-page--index .customer-table,
+        .customer-page--index .customer-table tbody {
+            display: block;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .customer-page--index .customer-table thead {
+            display: none;
+        }
+
+        .customer-page--index .customer-table tbody {
+            display: grid;
+            gap: 12px;
+        }
+
+        .customer-page--index .customer-table tbody tr {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            border: 1px solid #c8d0c1;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 7px rgba(36, 51, 30, .06);
+        }
+
+        .customer-page--index .customer-table td {
+            display: block;
+            min-width: 0;
+            padding: 14px;
+            border: 0;
+            border-bottom: 1px solid #e1e6dc;
+        }
+
+        .customer-page--index .customer-table td::before {
+            content: attr(data-label);
+            display: block;
+            margin-bottom: 7px;
+            color: #667263;
+            font-size: .67rem;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+
+        .customer-page--index .customer-table td:first-child,
+        .customer-page--index .customer-table td:last-child {
+            grid-column: 1 / -1;
+        }
+
+        .customer-page--index .customer-table td:first-child {
+            background: #fbfcf9;
+        }
+
+        .customer-page--index .customer-table td:nth-child(4) {
+            border-left: 1px solid #e1e6dc;
+        }
+
+        .customer-page--index .customer-table td:last-child {
+            border-bottom: 0;
+            background: #fbfcf9;
+        }
+
+        .customer-page--index .customer-table td:first-child::before,
+        .customer-page--index .customer-table td:last-child::before {
+            display: none;
+        }
+
+        .customer-page--index .customer-balance-cell {
+            align-items: flex-start;
+        }
+
+        .customer-page--index .customer-row-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 9px;
+        }
+
+        .customer-page--index .customer-row-actions .btn {
+            width: 100%;
+            min-height: 42px;
+            white-space: normal;
+        }
+
+        .customer-page--index .customer-empty-row {
+            display: block !important;
+        }
+
+        .customer-page--index .customer-empty-row td {
+            display: block;
+            border: 0;
+        }
+
+        .customer-page--index .customer-empty-row td::before {
+            display: none;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .customer-page--index .customer-table tbody tr {
+            grid-template-columns: 1fr;
+        }
+
+        .customer-page--index .customer-table td {
+            grid-column: 1 / -1;
+        }
+
+        .customer-page--index .customer-table td:nth-child(4) {
+            border-left: 0;
+        }
+
+        .customer-page--index .customer-row-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
 <div class="customer-page customer-page--index">
     @if (TempData["SuccessMessage"] is string success)
     {
@@ -88,6 +463,13 @@
 
         <div class="table-responsive customer-table-wrap">
             <table class="table customer-table mb-0">
+                <colgroup>
+                    <col style="width:28%" />
+                    <col style="width:22%" />
+                    <col style="width:16%" />
+                    <col style="width:11%" />
+                    <col style="width:23%" />
+                </colgroup>
                 <thead>
                     <tr>
                         <th>Customer</th>
@@ -98,73 +480,73 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (Model.Customers.Count == 0)
-                {
-                    <tr>
-                        <td colspan="5">
-                            <div class="customer-empty-state">
-                                <span class="customer-empty-icon">
-                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8" /></svg>
-                                </span>
-                                <strong>No customers found</strong>
-                                <span>Search badlein ya naya customer add karein.</span>
-                            </div>
-                        </td>
-                    </tr>
-                }
-                else
-                {
-                    foreach (var item in Model.Customers)
+                    @if (Model.Customers.Count == 0)
                     {
-                        var initials = string.Concat(item.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(x => char.ToUpperInvariant(x[0])));
-                        <tr>
-                            <td>
-                                <div class="customer-person-cell">
-                                    <span class="customer-avatar">@initials</span>
-                                    <div>
-                                        <a asp-page="Details" asp-route-id="@item.Id" class="customer-name-link">@item.Name</a>
-                                        <span>@(string.IsNullOrWhiteSpace(item.BusinessName) ? "Customer" : item.BusinessName)</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="customer-contact-cell">
-                                    <strong>@item.Phone</strong>
-                                    <span>@(string.IsNullOrWhiteSpace(item.Area) ? "Area not set" : item.Area)</span>
-                                </div>
-                            </td>
-                            <td class="text-end">
-                                @if (item.CurrentBalance > 0m)
-                                {
-                                    <div class="customer-balance-cell is-due"><strong>Rs. @item.CurrentBalance.ToString("N2")</strong><span>Lena hai</span></div>
-                                }
-                                else if (item.CurrentBalance < 0m)
-                                {
-                                    <div class="customer-balance-cell is-advance"><strong>Rs. @Math.Abs(item.CurrentBalance).ToString("N2")</strong><span>Advance</span></div>
-                                }
-                                else
-                                {
-                                    <div class="customer-balance-cell is-clear"><strong>Rs. 0.00</strong><span>Clear</span></div>
-                                }
-                            </td>
-                            <td>
-                                <span class="customer-status-badge @(item.IsActive ? "is-active" : "is-inactive")"><span></span>@(item.IsActive ? "Active" : "Inactive")</span>
-                            </td>
-                            <td class="text-end">
-                                <div class="customer-row-actions">
-                                    @if (User.HasPermission(AppPermissions.ViewLedger))
-                                    {
-                                        <a asp-page="/Customers/Khata" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Customer Khata Dekhein</a>
-                                    }
-                                    @if (item.IsActive && item.CurrentBalance > 0 && User.HasPermission(AppPermissions.ReceivePayments))
-                                    {
-                                        <a asp-page="/Payments/Create" asp-route-customerId="@item.Id" class="btn btn-sm btn-light">Payment Wasool Karein</a>
-                                    }
+                        <tr class="customer-empty-row">
+                            <td colspan="5">
+                                <div class="customer-empty-state">
+                                    <span class="customer-empty-icon">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8" /></svg>
+                                    </span>
+                                    <strong>No customers found</strong>
+                                    <span>Search badlein ya naya customer add karein.</span>
                                 </div>
                             </td>
                         </tr>
                     }
-                }
+                    else
+                    {
+                        foreach (var item in Model.Customers)
+                        {
+                            var initials = string.Concat(item.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(x => char.ToUpperInvariant(x[0])));
+                            <tr>
+                                <td data-label="Customer">
+                                    <div class="customer-person-cell">
+                                        <span class="customer-avatar">@initials</span>
+                                        <div>
+                                            <a asp-page="Details" asp-route-id="@item.Id" class="customer-name-link">@item.Name</a>
+                                            <span>@(string.IsNullOrWhiteSpace(item.BusinessName) ? "Customer" : item.BusinessName)</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td data-label="Contact">
+                                    <div class="customer-contact-cell">
+                                        <strong>@item.Phone</strong>
+                                        <span>@(string.IsNullOrWhiteSpace(item.Area) ? "Area not set" : item.Area)</span>
+                                    </div>
+                                </td>
+                                <td data-label="Baqaya" class="text-end">
+                                    @if (item.CurrentBalance > 0m)
+                                    {
+                                        <div class="customer-balance-cell is-due"><strong>Rs. @item.CurrentBalance.ToString("N2")</strong><span>Lena hai</span></div>
+                                    }
+                                    else if (item.CurrentBalance < 0m)
+                                    {
+                                        <div class="customer-balance-cell is-advance"><strong>Rs. @Math.Abs(item.CurrentBalance).ToString("N2")</strong><span>Advance</span></div>
+                                    }
+                                    else
+                                    {
+                                        <div class="customer-balance-cell is-clear"><strong>Rs. 0.00</strong><span>Clear</span></div>
+                                    }
+                                </td>
+                                <td data-label="Status">
+                                    <span class="customer-status-badge @(item.IsActive ? "is-active" : "is-inactive")"><span></span>@(item.IsActive ? "Active" : "Inactive")</span>
+                                </td>
+                                <td data-label="Kaam" class="text-end">
+                                    <div class="customer-row-actions">
+                                        @if (User.HasPermission(AppPermissions.ViewLedger))
+                                        {
+                                            <a asp-page="/Customers/Khata" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Khata Dekhein</a>
+                                        }
+                                        @if (item.IsActive && item.CurrentBalance > 0 && User.HasPermission(AppPermissions.ReceivePayments))
+                                        {
+                                            <a asp-page="/Payments/Create" asp-route-customerId="@item.Id" class="btn btn-sm btn-light">Payment Wasool Karein</a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
                 </tbody>
             </table>
         </div>

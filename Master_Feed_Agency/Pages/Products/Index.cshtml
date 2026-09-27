@@ -8,7 +8,543 @@
     var visibleStockValue = Model.Products.Sum(x => Math.Max(0m, x.CurrentStock) * x.DefaultSalePrice);
 }
 
-<div class="product-page">
+<style>
+    /* Products list polish - scoped only to this page. Existing app theme and logic stay unchanged. */
+    .product-page--index .product-filter-panel {
+        padding: 20px 22px;
+    }
+
+    .product-page--index .product-filter-grid {
+        display: grid;
+        grid-template-columns: minmax(300px, 2fr) 180px minmax(190px, .8fr) auto;
+        gap: 16px;
+        align-items: end;
+    }
+
+        .product-page--index .product-filter-grid > div {
+            min-width: 0;
+        }
+
+    .product-page--index .product-filter-search {
+        min-width: 0;
+    }
+
+    .product-page--index .product-low-stock-filter > span {
+        display: block;
+        margin-bottom: 6px;
+        font-size: .9rem;
+        font-weight: 600;
+    }
+
+    .product-page--index .product-check-card {
+        min-height: 44px;
+        padding: 10px 12px;
+        border: 1px solid #c6cdbd;
+        border-radius: 9px;
+        background: #fff;
+        cursor: pointer;
+    }
+
+        .product-page--index .product-check-card strong {
+            font-size: .84rem;
+            font-weight: 650;
+        }
+
+    .product-page--index .product-filter-action {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+        .product-page--index .product-filter-action .btn {
+            min-width: 112px;
+        }
+
+    .product-page--index .product-list-panel {
+        overflow: hidden;
+    }
+
+    .product-page--index .product-list-heading {
+        padding: 20px 24px;
+        background: #f2f5ec;
+        border-bottom-color: #c6cfbe;
+    }
+
+        .product-page--index .product-list-heading h2 {
+            margin: 0;
+            font-size: 1.18rem;
+        }
+
+    .product-page--index .product-list-meta {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .product-page--index .product-list-count,
+    .product-page--index .product-list-note {
+        display: inline-flex;
+        align-items: center;
+        min-height: 34px;
+        padding: 6px 11px;
+        border: 1px solid #c7d0bf;
+        border-radius: 8px;
+        background: #fff;
+        color: #4f5d4d;
+        font-size: .76rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .product-page--index .product-list-note {
+        background: #fff7e8;
+        border-color: #dfcda8;
+        color: #775a25;
+    }
+
+    .product-page--index .product-table {
+        table-layout: fixed;
+        min-width: 1080px;
+    }
+
+        .product-page--index .product-table th {
+            padding: 14px 18px;
+            background: #eeeedf;
+            color: #4b563e;
+            font-size: .78rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .product-page--index .product-table td {
+            padding: 17px 18px;
+            border-color: #dfe4da;
+            vertical-align: middle;
+        }
+
+        .product-page--index .product-table tbody tr {
+            background: #fff;
+            transition: background-color .15s ease;
+        }
+
+            .product-page--index .product-table tbody tr:hover {
+                background: #f8faf5;
+            }
+
+            .product-page--index .product-table tbody tr.is-inactive {
+                opacity: .72;
+            }
+
+    .product-page--index .product-name-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .product-page--index .product-box-icon {
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+        border: 1px solid #c8d5c2;
+        border-radius: 10px;
+        background: #e5eddb;
+        color: #226348;
+    }
+
+        .product-page--index .product-box-icon svg {
+            width: 19px;
+            height: 19px;
+        }
+
+    .product-page--index .product-name-cell > div {
+        min-width: 0;
+    }
+
+    .product-page--index .product-name-link {
+        display: block;
+        color: #165d40;
+        font-size: .96rem;
+        font-weight: 700;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+
+        .product-page--index .product-name-link:hover {
+            color: #124d36;
+        }
+
+    .product-page--index .product-code-line {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        flex-wrap: wrap;
+        margin-top: 4px;
+    }
+
+        .product-page--index .product-code-line > span {
+            color: #596657;
+            font-size: .77rem;
+            font-weight: 650;
+        }
+
+        .product-page--index .product-code-line small {
+            padding-left: 7px;
+            border-left: 1px solid #d7ddd2;
+            color: #6a7267 !important;
+            font-size: .72rem;
+        }
+
+    .product-page--index .product-unit-chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 5px 9px;
+        border: 1px solid #d1d7cc;
+        border-radius: 999px;
+        background: #f7f9f4;
+        color: #455247;
+        font-size: .76rem;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .product-page--index .product-price-cell {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 3px;
+    }
+
+        .product-page--index .product-price-cell strong {
+            color: #26332a;
+            font-size: .95rem;
+            font-weight: 750;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .product-page--index .product-price-cell span {
+            color: #71796e;
+            font-size: .7rem;
+        }
+
+    .product-page--index .product-stock-cell {
+        max-width: 245px;
+        min-width: 0;
+    }
+
+    .product-page--index .product-stock-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 7px;
+    }
+
+        .product-page--index .product-stock-top strong {
+            color: #26332a;
+            font-size: .9rem;
+            font-weight: 750;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .product-page--index .product-stock-top span {
+            display: inline-flex;
+            align-items: center;
+            min-height: 23px;
+            padding: 3px 7px;
+            border-radius: 999px;
+            background: #e5eddb;
+            color: #226348;
+            font-size: .66rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+    .product-page--index .product-stock-cell.is-low .product-stock-top span {
+        background: #fff4d9;
+        color: #7b531b;
+    }
+
+    .product-page--index .product-stock-cell.is-negative .product-stock-top span {
+        background: #fff0ec;
+        color: #a14335;
+    }
+
+    .product-page--index .product-stock-track {
+        width: 100%;
+        height: 5px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e7ebe3;
+    }
+
+        .product-page--index .product-stock-track > span {
+            display: block;
+            height: 100%;
+            min-width: 3px;
+            border-radius: inherit;
+            background: #5b866d;
+        }
+
+    .product-page--index .product-stock-cell.is-low .product-stock-track > span {
+        background: #b78935;
+    }
+
+    .product-page--index .product-stock-cell.is-negative .product-stock-track > span {
+        background: #a84d41;
+    }
+
+    .product-page--index .product-stock-cell small {
+        display: block;
+        margin-top: 5px;
+        color: #697367 !important;
+        font-size: .69rem;
+    }
+
+    .product-page--index .product-status-badge {
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: .72rem;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+        .product-page--index .product-status-badge > span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+    .product-page--index .product-row-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 7px;
+        flex-wrap: wrap;
+    }
+
+        .product-page--index .product-row-actions .btn {
+            min-height: 37px;
+            padding: 7px 10px;
+            border-radius: 8px;
+            font-size: .74rem;
+            white-space: nowrap;
+        }
+
+        .product-page--index .product-row-actions .btn-light {
+            background: #fff;
+        }
+
+            .product-page--index .product-row-actions .btn-light:hover {
+                border-color: #8ea185;
+                background: #f7faf4;
+                color: #194f39;
+            }
+
+    .product-page--index .product-empty-state {
+        padding: 44px 24px;
+    }
+
+    @@media (max-width: 1180px) {
+        .product-page--index .product-filter-grid {
+            grid-template-columns: minmax(280px, 2fr) 170px 1fr;
+        }
+
+        .product-page--index .product-filter-action {
+            grid-column: 1 / -1;
+            justify-content: flex-end;
+        }
+
+        .product-page--index .product-table {
+            min-width: 1020px;
+        }
+
+            .product-page--index .product-table th,
+            .product-page--index .product-table td {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+    }
+
+    @@media (max-width: 767px) {
+        .product-page--index .product-filter-panel {
+            padding: 17px;
+        }
+
+        .product-page--index .product-filter-grid {
+            grid-template-columns: 1fr;
+            gap: 13px;
+        }
+
+        .product-page--index .product-filter-action {
+            grid-column: auto;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+            .product-page--index .product-filter-action .btn {
+                width: 100%;
+                min-width: 0;
+            }
+
+        .product-page--index .product-list-heading {
+            align-items: flex-start;
+            padding: 17px;
+        }
+
+        .product-page--index .product-list-meta {
+            justify-content: flex-start;
+        }
+
+        .product-page--index .product-table-wrap {
+            overflow: visible;
+            padding: 12px;
+            background: #f5f7f1;
+        }
+
+        .product-page--index .product-table,
+        .product-page--index .product-table tbody {
+            display: block;
+            width: 100%;
+            min-width: 0;
+        }
+
+            .product-page--index .product-table thead {
+                display: none;
+            }
+
+            .product-page--index .product-table tbody {
+                display: grid;
+                gap: 12px;
+            }
+
+                .product-page--index .product-table tbody tr {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 0;
+                    border: 1px solid #c8d0c1;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    box-shadow: 0 2px 7px rgba(36, 51, 30, .06);
+                }
+
+            .product-page--index .product-table td {
+                display: block;
+                min-width: 0;
+                padding: 14px;
+                border: 0;
+                border-bottom: 1px solid #e1e6dc;
+            }
+
+                .product-page--index .product-table td::before {
+                    content: attr(data-label);
+                    display: block;
+                    margin-bottom: 7px;
+                    color: #667263;
+                    font-size: .67rem;
+                    font-weight: 700;
+                    letter-spacing: .06em;
+                    text-transform: uppercase;
+                }
+
+                .product-page--index .product-table td:first-child,
+                .product-page--index .product-table td:nth-child(4),
+                .product-page--index .product-table td:last-child {
+                    grid-column: 1 / -1;
+                }
+
+                .product-page--index .product-table td:first-child,
+                .product-page--index .product-table td:last-child {
+                    background: #fbfcf9;
+                }
+
+                .product-page--index .product-table td:nth-child(3),
+                .product-page--index .product-table td:nth-child(5) {
+                    border-left: 1px solid #e1e6dc;
+                }
+
+                .product-page--index .product-table td:last-child {
+                    border-bottom: 0;
+                }
+
+                    .product-page--index .product-table td:first-child::before,
+                    .product-page--index .product-table td:last-child::before {
+                        display: none;
+                    }
+
+        .product-page--index .product-price-cell {
+            align-items: flex-start;
+        }
+
+        .product-page--index .product-stock-cell {
+            max-width: none;
+        }
+
+        .product-page--index .product-row-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+            .product-page--index .product-row-actions .btn {
+                width: 100%;
+                min-height: 41px;
+                white-space: normal;
+            }
+
+            .product-page--index .product-row-actions .btn-primary:last-child:nth-child(3) {
+                grid-column: 1 / -1;
+            }
+
+        .product-page--index .product-empty-row {
+            display: block !important;
+        }
+
+            .product-page--index .product-empty-row td {
+                display: block;
+                border: 0;
+            }
+
+                .product-page--index .product-empty-row td::before {
+                    display: none;
+                }
+    }
+
+    @@media (max-width: 480px) {
+        .product-page--index .product-table tbody tr {
+            grid-template-columns: 1fr;
+        }
+
+        .product-page--index .product-table td {
+            grid-column: 1 / -1;
+        }
+
+            .product-page--index .product-table td:nth-child(3),
+            .product-page--index .product-table td:nth-child(5) {
+                border-left: 0;
+            }
+
+        .product-page--index .product-row-actions {
+            grid-template-columns: 1fr;
+        }
+
+            .product-page--index .product-row-actions .btn-primary:last-child:nth-child(3) {
+                grid-column: auto;
+            }
+    }
+</style>
+
+<div class="product-page product-page--index">
     @if (TempData["SuccessMessage"] is string success)
     {
         <div class="alert alert-success product-flash-alert">@success</div>
@@ -43,25 +579,25 @@
             <span class="product-stat-icon is-blue">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 8-9 5-9-5M3 8l9-5 9 5v8l-9 5-9-5V8Z" /><path d="M12 13v8" /></svg>
             </span>
-            <div><span>Visible products</span><strong>@Model.Products.Count</strong><small>Matching current filters</small></div>
+            <div><span>Visible products</span><strong>@Model.Products.Count</strong><small>Current filter mein</small></div>
         </div>
         <div class="product-stat-card">
             <span class="product-stat-icon is-green">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg>
             </span>
-            <div><span>Active</span><strong>@activeCount</strong><small>Available for transactions</small></div>
+            <div><span>Active</span><strong>@activeCount</strong><small>Sale ke liye available</small></div>
         </div>
         <div class="product-stat-card">
             <span class="product-stat-icon is-amber">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9v4M12 17h.01" /><path d="M10.3 3.7 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z" /></svg>
             </span>
-            <div><span>Low stock</span><strong>@lowStockCount</strong><small>At or below threshold</small></div>
+            <div><span>Low stock</span><strong>@lowStockCount</strong><small>Threshold ke qareeb / neeche</small></div>
         </div>
         <div class="product-stat-card">
             <span class="product-stat-icon is-violet">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
             </span>
-            <div><span>Stock value</span><strong>Rs. @visibleStockValue.ToString("N0")</strong><small>Visible stock at sale rate</small></div>
+            <div><span>Stock value</span><strong>Rs. @visibleStockValue.ToString("N0")</strong><small>Sale rate ke mutabiq</small></div>
         </div>
     </section>
 
@@ -86,7 +622,7 @@
                 <span>Stock Filter</span>
                 <label class="product-check-card" for="LowStockOnly">
                     <input asp-for="LowStockOnly" class="form-check-input" />
-                    <span><strong>Low stock only</strong><small>Show products at or below threshold</small></span>
+                    <span><strong>Low stock only</strong></span>
                 </label>
             </div>
             <div class="product-filter-action">
@@ -105,7 +641,7 @@
             <div class="product-list-meta">
                 @if (inactiveCount > 0)
                 {
-                    <span class="product-list-note">@inactiveCount inactive in view</span>
+                    <span class="product-list-note">@inactiveCount inactive</span>
                 }
                 <span class="product-list-count">@Model.Products.Count record(s)</span>
             </div>
@@ -113,6 +649,14 @@
 
         <div class="table-responsive product-table-wrap">
             <table class="table product-table mb-0">
+                <colgroup>
+                    <col style="width:24%" />
+                    <col style="width:8%" />
+                    <col style="width:13%" />
+                    <col style="width:22%" />
+                    <col style="width:10%" />
+                    <col style="width:23%" />
+                </colgroup>
                 <thead>
                     <tr>
                         <th>Product</th>
@@ -124,78 +668,83 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (Model.Products.Count == 0)
-                {
-                    <tr>
-                        <td colspan="6">
-                            <div class="product-empty-state">
-                                <span class="product-empty-icon">
-                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 8-9 5-9-5M3 8l9-5 9 5v8l-9 5-9-5V8Z" /><path d="M12 13v8" /></svg>
-                                </span>
-                                <strong>No products found</strong>
-                                <span>Change the filters or add a new product.</span>
-                            </div>
-                        </td>
-                    </tr>
-                }
-                else
-                {
-                    foreach (var item in Model.Products)
+                    @if (Model.Products.Count == 0)
                     {
-                        var stockPercent = item.LowStockThreshold > 0m
-                            ? Math.Max(0m, Math.Min(100m, (item.CurrentStock / item.LowStockThreshold) * 100m))
-                            : (item.CurrentStock > 0m ? 100m : 0m);
-                        var stockPercentCss = stockPercent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
-                        var stockState = item.CurrentStock < 0m ? "is-negative" : item.IsLowStock ? "is-low" : "is-healthy";
-                        <tr class="@(item.IsActive ? null : "is-inactive")">
-                            <td>
-                                <div class="product-name-cell">
-                                    <span class="product-box-icon">
+                        <tr class="product-empty-row">
+                            <td colspan="6">
+                                <div class="product-empty-state">
+                                    <span class="product-empty-icon">
                                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 8-9 5-9-5M3 8l9-5 9 5v8l-9 5-9-5V8Z" /><path d="M12 13v8" /></svg>
                                     </span>
-                                    <div>
-                                        <a asp-page="History" asp-route-id="@item.Id" class="product-name-link">@item.Name</a>
-                                        <div class="product-code-line">
-                                            <span>@item.Code</span>
-                                            @if (item.PurchaseCost.HasValue && User.HasPermission(AppPermissions.ManageProducts))
-                                            {
-                                                <small>Cost Rs. @item.PurchaseCost.Value.ToString("N2")</small>
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="product-unit-chip">@item.Unit</span></td>
-                            <td class="text-end"><div class="product-price-cell"><strong>Rs. @item.DefaultSalePrice.ToString("N2")</strong><span>default rate</span></div></td>
-                            <td>
-                                <div class="product-stock-cell @stockState">
-                                    <div class="product-stock-top">
-                                        <strong>@item.CurrentStock.ToString("0.###") @item.Unit</strong>
-                                        <span>@(item.CurrentStock < 0m ? "Negative" : item.IsLowStock ? "Low" : "Stock Maujood Hai")</span>
-                                    </div>
-                                    <div class="product-stock-track"><span style="width:@stockPercentCss%"></span></div>
-                                    <small>Threshold @item.LowStockThreshold.ToString("0.###") @item.Unit</small>
-                                </div>
-                            </td>
-                            <td>
-                                <span class="product-status-badge @(item.IsActive ? "is-active" : "is-inactive")"><span></span>@(item.IsActive ? "Active" : "Inactive")</span>
-                            </td>
-                            <td class="text-end">
-                                <div class="product-row-actions">
-                                    <a asp-page="History" asp-route-id="@item.Id" class="btn btn-sm btn-light">Stock Record</a>
-                                    @if (User.HasPermission(AppPermissions.AdjustStock))
-                                    {
-                                        <a asp-page="Adjust" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Stock Add / Correct</a>
-                                    }
-                                    @if (User.HasPermission(AppPermissions.ManageProducts))
-                                    {
-                                        <a asp-page="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Details Badlein</a>
-                                    }
+                                    <strong>No products found</strong>
+                                    <span>Filter badlein ya naya product add karein.</span>
                                 </div>
                             </td>
                         </tr>
                     }
-                }
+                    else
+                    {
+                        foreach (var item in Model.Products)
+                        {
+                            var stockPercent = item.LowStockThreshold > 0m
+                            ? Math.Max(0m, Math.Min(100m, (item.CurrentStock / item.LowStockThreshold) * 100m))
+                            : (item.CurrentStock > 0m ? 100m : 0m);
+                            var stockPercentCss = stockPercent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+                            var stockState = item.CurrentStock < 0m ? "is-negative" : item.IsLowStock ? "is-low" : "is-healthy";
+                            <tr class="@(item.IsActive ? null : "is-inactive")">
+                                <td data-label="Product">
+                                    <div class="product-name-cell">
+                                        <span class="product-box-icon">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 8-9 5-9-5M3 8l9-5 9 5v8l-9 5-9-5V8Z" /><path d="M12 13v8" /></svg>
+                                        </span>
+                                        <div>
+                                            <a asp-page="History" asp-route-id="@item.Id" class="product-name-link">@item.Name</a>
+                                            <div class="product-code-line">
+                                                <span>@item.Code</span>
+                                                @if (item.PurchaseCost.HasValue && User.HasPermission(AppPermissions.ManageProducts))
+                                                {
+                                                    <small>Cost Rs. @item.PurchaseCost.Value.ToString("N2")</small>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td data-label="Unit"><span class="product-unit-chip">@item.Unit</span></td>
+                                <td data-label="Sale Price" class="text-end">
+                                    <div class="product-price-cell">
+                                        <strong>Rs. @item.DefaultSalePrice.ToString("N2")</strong>
+                                        <span>default rate</span>
+                                    </div>
+                                </td>
+                                <td data-label="Available Stock">
+                                    <div class="product-stock-cell @stockState">
+                                        <div class="product-stock-top">
+                                            <strong>@item.CurrentStock.ToString("0.###") @item.Unit</strong>
+                                            <span>@(item.CurrentStock < 0m ? "Negative" : item.IsLowStock ? "Low Stock" : "Maujood")</span>
+                                        </div>
+                                        <div class="product-stock-track"><span style="width:@stockPercentCss%"></span></div>
+                                        <small>Threshold @item.LowStockThreshold.ToString("0.###") @item.Unit</small>
+                                    </div>
+                                </td>
+                                <td data-label="Status">
+                                    <span class="product-status-badge @(item.IsActive ? "is-active" : "is-inactive")"><span></span>@(item.IsActive ? "Active" : "Inactive")</span>
+                                </td>
+                                <td data-label="Kaam" class="text-end">
+                                    <div class="product-row-actions">
+                                        <a asp-page="History" asp-route-id="@item.Id" class="btn btn-sm btn-light">Stock Record</a>
+                                        @if (User.HasPermission(AppPermissions.AdjustStock))
+                                        {
+                                            <a asp-page="Adjust" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Stock Add / Correct</a>
+                                        }
+                                        @if (User.HasPermission(AppPermissions.ManageProducts))
+                                        {
+                                            <a asp-page="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Details Badlein</a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
                 </tbody>
             </table>
         </div>
