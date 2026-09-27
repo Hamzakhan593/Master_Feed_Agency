@@ -17,19 +17,27 @@ public sealed class CreateModel : PageModel
 {
     private readonly ApplicationDbContext _db;
     private readonly PaymentService _payments;
-    public CreateModel(ApplicationDbContext db, PaymentService payments) { _db = db; _payments = payments; }
+    private readonly WhatsAppMessagingService _whatsApp;
+    public CreateModel(ApplicationDbContext db, PaymentService payments, WhatsAppMessagingService whatsApp)
+    {
+        _db = db;
+        _payments = payments;
+        _whatsApp = whatsApp;
+    }
 
     [BindProperty] public InputModel Input { get; set; } = new();
     public List<SelectListItem> Customers { get; private set; } = [];
     public Dictionary<int, decimal> Balances { get; private set; } = [];
+    public bool WhatsAppReady => _whatsApp.IsConfigured;
 
     public sealed class InputModel
     {
-        [Range(1, int.MaxValue, ErrorMessage = "Customer search karke select karein.")] public int CustomerId { get; set; }
-        [Range(typeof(decimal), "0.01", "999999999999", ErrorMessage = "Mili hui payment ki sahi raqam likhein.")] public decimal Amount { get; set; }
+        [Range(1,int.MaxValue,ErrorMessage="Customer search karke select karein.")] public int CustomerId { get; set; }
+        [Range(typeof(decimal),"0.01","999999999999",ErrorMessage="Mili hui payment ki sahi raqam likhein.")] public decimal Amount { get; set; }
         public PaymentMethod Method { get; set; } = PaymentMethod.Cash;
         [StringLength(500)] public string? Notes { get; set; }
         [Required] public string ClientRequestId { get; set; } = Guid.NewGuid().ToString("N");
+        public bool SendWhatsAppReceipt { get; set; }
     }
 
     public async Task OnGetAsync(int? customerId, CancellationToken ct)
@@ -43,10 +51,24 @@ public sealed class CreateModel : PageModel
         await LoadAsync(ct);
         if (!ModelState.IsValid) return Page();
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        var result = await _payments.ReceiveAsync(new PaymentPostRequest(Input.CustomerId, Input.Amount, Input.Method, Input.Notes, Input.ClientRequestId), userId, ct);
-        if (!result.Succeeded) { ModelState.AddModelError(string.Empty, result.Error!); return Page(); }
+        var result = await _payments.ReceiveAsync(new PaymentPostRequest(Input.CustomerId,Input.Amount,Input.Method,Input.Notes,Input.ClientRequestId),userId,ct);
+        if (!result.Succeeded){ModelState.AddModelError(string.Empty,result.Error!);return Page();}
         TempData["SuccessMessage"] = result.DuplicateSubmission ? $"Payment pehle se saved hai: {result.ReceiptNo}." : $"Payment save ho gayi. Receipt {result.ReceiptNo}.";
-        return RedirectToPage("Details", new { id = result.PaymentId });
+
+        if (Input.SendWhatsAppReceipt && result.PaymentId.HasValue)
+        {
+            var messageResult = await _whatsApp.SendPaymentReceiptAsync(result.PaymentId.Value, userId, ct);
+            if (messageResult.Succeeded)
+            {
+                TempData["SuccessMessage"] = $"{TempData["SuccessMessage"]} WhatsApp payment message bhi send ho gaya.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = $"Payment save ho gayi, lekin WhatsApp message send nahi hua: {messageResult.Message}";
+            }
+        }
+
+        return RedirectToPage("Details",new{id=result.PaymentId});
     }
 
     private async Task LoadAsync(CancellationToken ct)

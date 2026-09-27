@@ -20,6 +20,7 @@ public static class AppPermissions
     public const string ReceivePayments = "Payments.Receive";
     public const string ReversePayments = "Payments.Reverse";
     public const string ViewReports = "Reports.View";
+    public const string ManageMessages = "Messages.Manage";
 
     public static readonly IReadOnlyList<PermissionDefinition> All =
     [
@@ -37,6 +38,7 @@ public static class AppPermissions
         new(ReceivePayments, "Payment Wasool Karein", "Customer Payments"),
         new(ReversePayments, "Ghalat Payment Cancel Karein", "Customer Payments"),
         new(ViewReports, "Business Reports Dekhein", "Reports"),
+        new(ManageMessages, "WhatsApp Messages Aur Reminders Manage Karein", "Messages"),
     ];
 
     public static IReadOnlyCollection<string> DefaultsForRole(string role) => role switch
@@ -48,7 +50,7 @@ public static class AppPermissions
             ViewDashboard, ViewProducts, ManageProducts, AdjustStock,
             ViewCustomers, ManageCustomers, CreateSales, CancelSales,
             ViewLedger, ReceivePayments,
-            ViewReports, ],
+            ViewReports, ManageMessages, ],
 
         AppRoles.Accountant =>
         [

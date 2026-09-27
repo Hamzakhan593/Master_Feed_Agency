@@ -63,6 +63,16 @@
                 <span>Reports</span>
             </a>
         }
+
+        @if (User.HasPermission(AppPermissions.ManageMessages))
+        {
+            <a class="app-nav-link" asp-page="/Messages/Index" data-nav-path="/Messages">
+                <span class="app-nav-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.5 9.2 9.2 0 0 1-4-.9L3 21l1.7-4.4A8.6 8.6 0 0 1 3 11.5 8.7 8.7 0 0 1 12 3a8.7 8.7 0 0 1 9 8.5Z" /><path d="M8 10.5h8M8 14h5" /></svg>
+                </span>
+                <span>WhatsApp Messages</span>
+            </a>
+        }
     </div>
 
     @if (User.HasPermission(AppPermissions.ManageUsers))

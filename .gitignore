@@ -18,3 +18,6 @@
 *.user
 *.suo
 .vs/
+
+# Local WhatsApp Cloud API credentials
+Master_Feed_Agency/whatsappsettings.json

@@ -19,6 +19,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<SaleItem> SaleItems => Set<SaleItem>();
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<PaymentAllocation> PaymentAllocations => Set<PaymentAllocation>();
+    public DbSet<WhatsAppMessageLog> WhatsAppMessages => Set<WhatsAppMessageLog>();
 
     // Posted records are corrected through reversal entries, never deleted.
     private void ProtectRecords()
@@ -188,6 +189,37 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
             entity.HasOne(x => x.Payment)
                 .WithMany(x => x.Allocations)
+                .HasForeignKey(x => x.PaymentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(x => x.Sale)
+                .WithMany()
+                .HasForeignKey(x => x.SaleId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<WhatsAppMessageLog>(entity =>
+        {
+            entity.ToTable("WhatsAppMessages");
+            entity.Property(x => x.Recipient).HasMaxLength(30).IsRequired();
+            entity.Property(x => x.TemplateName).HasMaxLength(150);
+            entity.Property(x => x.MessagePreview).HasMaxLength(2000).IsRequired();
+            entity.Property(x => x.ProviderReference).HasMaxLength(200);
+            entity.Property(x => x.ErrorMessage).HasMaxLength(1000);
+            entity.Property(x => x.DeduplicationKey).HasMaxLength(180).IsRequired();
+            entity.Property(x => x.CreatedByUserId).HasMaxLength(450);
+            entity.HasIndex(x => x.DeduplicationKey).IsUnique();
+            entity.HasIndex(x => new { x.CustomerId, x.CreatedAt });
+            entity.HasIndex(x => new { x.Status, x.CreatedAt });
+            entity.HasIndex(x => x.PaymentId);
+
+            entity.HasOne(x => x.Customer)
+                .WithMany()
+                .HasForeignKey(x => x.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(x => x.Payment)
+                .WithMany()
                 .HasForeignKey(x => x.PaymentId)
                 .OnDelete(DeleteBehavior.Restrict);
 

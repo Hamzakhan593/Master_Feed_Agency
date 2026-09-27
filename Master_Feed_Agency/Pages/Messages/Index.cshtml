@@ -1,0 +1,304 @@
+@page
+@model Master_Feed_Agency.Pages.Messages.IndexModel
+@using Master_Feed_Agency.Models
+@using Master_Feed_Agency.Services
+@{
+    ViewData["Title"] = "WhatsApp Messages";
+    var options = Model.Settings;
+    var ownerTime = $"{Math.Clamp(options.DailyOwnerReportHour, 0, 23):00}:00";
+    var dueTime = $"{Math.Clamp(options.DueReminderHour, 0, 23):00}:00";
+}
+
+<section class="msg-hero">
+    <div class="msg-hero-copy">
+        <span class="msg-eyebrow">WHATSAPP / YAAD DEHANI</span>
+        <h1>WhatsApp Messages</h1>
+        <p>Owner ki daily report, customer due reminders aur payment receipt messages ek jagah manage karein.</p>
+        <div class="msg-hero-meta">
+            <span>Owner Report @ownerTime</span>
+            <span>Due Reminder @options.DueReminderDaysBefore din pehle</span>
+            <span>Payment Message Optional</span>
+        </div>
+    </div>
+    <div class="msg-connection @(Model.IsConfigured ? "is-ready" : "is-off")">
+        <span class="msg-connection-dot"></span>
+        <div>
+            <small>WhatsApp Cloud API</small>
+            <strong>@(Model.IsConfigured ? "Ready" : "Setup Required")</strong>
+        </div>
+    </div>
+</section>
+
+@if (TempData["SuccessMessage"] is string success)
+{
+    <div class="alert alert-success msg-alert" role="status">@success</div>
+}
+@if (TempData["ErrorMessage"] is string error)
+{
+    <div class="alert alert-danger msg-alert" role="alert">@error</div>
+}
+
+@if (!Model.IsConfigured)
+{
+    <section class="msg-setup-note">
+        <div>
+            <strong>Automatic messages abhi OFF hain</strong>
+            <p><code>whatsappsettings.json</code> mein Meta WhatsApp Cloud API ka Phone Number ID, Access Token aur Owner number add karke <code>Enabled: true</code> karein.</p>
+        </div>
+        <span>Payment aur business ka normal kaam is setup ke baghair bhi chalta rahega.</span>
+    </section>
+}
+
+<div class="msg-kpi-grid">
+    <article class="msg-kpi">
+        <span>Aaj Ki Sale</span>
+        <strong>Rs. @Model.TodaySummary.TotalSales.ToString("N2")</strong>
+        <small>@Model.TodaySummary.BillCount bill(s)</small>
+    </article>
+    <article class="msg-kpi msg-kpi-warn">
+        <span>Aaj Naya Udhaar</span>
+        <strong>Rs. @Model.TodaySummary.NewCredit.ToString("N2")</strong>
+        <small>Credit created today</small>
+    </article>
+    <article class="msg-kpi">
+        <span>Aaj Customer Wasooli</span>
+        <strong>Rs. @Model.TodaySummary.CustomerPayments.ToString("N2")</strong>
+        <small>Separate payments received</small>
+    </article>
+    <article class="msg-kpi">
+        <span>Total Customer Baqaya</span>
+        <strong>Rs. @Model.TodaySummary.TotalOutstanding.ToString("N2")</strong>
+        <small>Sirf positive balances</small>
+    </article>
+</div>
+
+<div class="msg-grid">
+    <section class="msg-panel msg-panel-owner">
+        <div class="msg-panel-head">
+            <div>
+                <span class="msg-panel-kicker">AUTOMATIC</span>
+                <h2>Owner Daily Brief</h2>
+                <p>Har din raat @ownerTime ke baad ek dafa owner ko business summary send hogi.</p>
+            </div>
+            <span class="msg-status-pill @(options.DailyOwnerReportEnabled ? "is-on" : "is-off")">
+                @(options.DailyOwnerReportEnabled ? "ON" : "OFF")
+            </span>
+        </div>
+        <div class="msg-owner-preview">
+            <div><span>Owner Number</span><strong>@(string.IsNullOrWhiteSpace(options.OwnerPhone) ? "Not configured" : options.OwnerPhone)</strong></div>
+            <div><span>Report Time</span><strong>@ownerTime</strong></div>
+            <div><span>Report Mein</span><strong>Sale · Counter payment · Naya udhaar · Wasooli · Total baqaya</strong></div>
+        </div>
+        <form method="post" asp-page-handler="SendOwnerNow" class="msg-panel-action">
+            <button class="btn btn-primary" type="submit" disabled="@(!Model.IsConfigured ? "disabled" : null)">Aaj Ki Report Ab Bhejein</button>
+            <small>Automatic report apne schedule par phir bhi sirf ek dafa jayegi.</small>
+        </form>
+    </section>
+
+    <section class="msg-panel">
+        <div class="msg-panel-head">
+            <div>
+                <span class="msg-panel-kicker">AUTOMATIC</span>
+                <h2>Due Date Reminder</h2>
+                <p>Customer ko payment due hone se @options.DueReminderDaysBefore din pehle reminder send hoga.</p>
+            </div>
+            <span class="msg-status-pill @(options.DueReminderEnabled ? "is-on" : "is-off")">
+                @(options.DueReminderEnabled ? "ON" : "OFF")
+            </span>
+        </div>
+        <div class="msg-owner-preview">
+            <div><span>Next Due Date</span><strong>@Model.UpcomingDueDate.ToString("dd MMM yyyy")</strong></div>
+            <div><span>Reminder Check</span><strong>@dueTime ke baad</strong></div>
+            <div><span>Customers Ready</span><strong>@Model.DueReminders.Count</strong></div>
+        </div>
+        @if (Model.DueReminders.Count > 0)
+        {
+            <form method="post" asp-page-handler="SendAllDue" class="msg-panel-action">
+                <input type="hidden" name="dueDate" value="@Model.UpcomingDueDate.ToString("yyyy-MM-dd")" />
+                <button class="btn btn-light" type="submit" disabled="@(!Model.IsConfigured ? "disabled" : null)">Sab Due Reminders Ab Bhejein</button>
+                <small>Jo reminder pehle sent hai woh duplicate send nahi hoga.</small>
+            </form>
+        }
+    </section>
+</div>
+
+<section class="msg-panel msg-due-panel">
+    <div class="msg-panel-head msg-panel-head-row">
+        <div>
+            <span class="msg-panel-kicker">UPCOMING DUE</span>
+            <h2>@Model.UpcomingDueDate.ToString("dd MMM yyyy") Ke Reminders</h2>
+            <p>Sirf woh udhaar invoices jin mein abhi amount open hai.</p>
+        </div>
+        <span class="msg-count">@Model.DueReminders.Count customer(s)</span>
+    </div>
+
+    @if (Model.DueReminders.Count == 0)
+    {
+        <div class="msg-empty">Is date ke liye koi open due reminder nahi hai.</div>
+    }
+    else
+    {
+        <div class="msg-due-list">
+            @foreach (var item in Model.DueReminders)
+            {
+                var sent = Model.SentDueCustomerIds.Contains(item.CustomerId);
+                <article class="msg-due-row">
+                    <div class="msg-avatar">@((string.IsNullOrWhiteSpace(item.CustomerName) ? "C" : item.CustomerName[..1]).ToUpperInvariant())</div>
+                    <div class="msg-due-customer">
+                        <strong>@item.CustomerName</strong>
+                        <span>@item.Phone · @item.InvoiceReference</span>
+                    </div>
+                    <div class="msg-due-money">
+                        <span>Due Amount</span>
+                        <strong>Rs. @item.Amount.ToString("N2")</strong>
+                    </div>
+                    <div class="msg-due-date">
+                        <span>Due Date</span>
+                        <strong>@item.DueDate.ToString("dd MMM yyyy")</strong>
+                    </div>
+                    <form method="post" asp-page-handler="SendDue" class="msg-due-action">
+                        <input type="hidden" name="customerId" value="@item.CustomerId" />
+                        <input type="hidden" name="dueDate" value="@item.DueDate.ToString("yyyy-MM-dd")" />
+                        <button type="submit" class="btn @(sent ? "btn-light" : "btn-primary")" disabled="@(!Model.IsConfigured || sent ? "disabled" : null)">
+                            @(sent ? "Sent" : "Reminder Bhejein")
+                        </button>
+                    </form>
+                </article>
+            }
+        </div>
+    }
+</section>
+
+<section class="msg-panel">
+    <div class="msg-panel-head">
+        <div>
+            <span class="msg-panel-kicker">MANUAL MESSAGE</span>
+            <h2>Customer Ko WhatsApp Kholein</h2>
+            <p>Kisi bhi customer ke liye custom message likhein. Yeh WhatsApp Web/App kholega; send button aap WhatsApp mein press karein.</p>
+        </div>
+    </div>
+    <div class="msg-manual-grid">
+        <div>
+            <label class="form-label" for="manualCustomer">Customer</label>
+            <select id="manualCustomer" class="form-select" data-search data-search-label="Customer search karein">
+                <option value="">Customer select karein</option>
+                @foreach (var customer in Model.Customers)
+                {
+                    <option value="@customer.Id" data-phone="@WhatsAppCloudGateway.NormalizePhone(customer.Phone)" data-name="@customer.Name" data-detail="@customer.Phone · Baqaya Rs. @customer.Balance.ToString("N2")">
+                        @customer.Name - @customer.Phone - @customer.BusinessName
+                    </option>
+                }
+            </select>
+        </div>
+        <div class="msg-manual-text">
+            <label class="form-label" for="manualMessage">Message</label>
+            <textarea id="manualMessage" class="form-control" rows="3" placeholder="Assalam-o-Alaikum, ..."></textarea>
+        </div>
+        <div class="msg-manual-action">
+            <button type="button" id="openWhatsApp" class="btn btn-primary">WhatsApp Kholein</button>
+            <small>Custom free-text ke liye yeh safest option hai; automatic messages approved templates se send hote hain.</small>
+        </div>
+    </div>
+</section>
+
+<section class="msg-panel msg-history-panel">
+    <div class="msg-panel-head msg-panel-head-row">
+        <div>
+            <span class="msg-panel-kicker">MESSAGE HISTORY</span>
+            <h2>Recent WhatsApp Activity</h2>
+            <p>Automatic aur optional payment messages ka status.</p>
+        </div>
+        <span class="msg-count">Last @Model.RecentLogs.Count</span>
+    </div>
+
+    @if (Model.RecentLogs.Count == 0)
+    {
+        <div class="msg-empty">Abhi koi WhatsApp message log nahi hai.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table msg-history-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Message</th>
+                        <th>Customer / Number</th>
+                        <th>Status</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var log in Model.RecentLogs)
+                {
+                    var label = log.Kind switch
+                    {
+                        WhatsAppMessageKind.OwnerDailyReport => "Owner Daily Report",
+                        WhatsAppMessageKind.DueReminder => "Due Reminder",
+                        WhatsAppMessageKind.PaymentReceived => "Payment Received",
+                        _ => "WhatsApp Message"
+                    };
+                    <tr>
+                        <td>
+                            <strong>@label</strong>
+                            <small>@log.MessagePreview</small>
+                            @if (!string.IsNullOrWhiteSpace(log.ErrorMessage))
+                            {
+                                <small class="text-danger">@log.ErrorMessage</small>
+                            }
+                        </td>
+                        <td>
+                            <strong>@(log.Customer?.Name ?? (log.Kind == WhatsAppMessageKind.OwnerDailyReport ? "Owner" : "—"))</strong>
+                            <small>@log.Recipient</small>
+                        </td>
+                        <td>
+                            <span class="msg-log-status msg-log-@log.Status.ToString().ToLowerInvariant()">@log.Status</span>
+                            <small>@(log.IsAutomatic ? "Automatic" : "Manual / Optional")</small>
+                        </td>
+                        <td>@BusinessTime.ToLocal(log.CreatedAt).ToString("dd MMM, hh:mm tt")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<section class="msg-template-help">
+    <div>
+        <span class="msg-panel-kicker">META TEMPLATE SETUP</span>
+        <h2>Approved WhatsApp Templates</h2>
+        <p>Automatic business-initiated WhatsApp messages ke liye Meta par approved templates chahiye. Names <code>whatsappsettings.json</code> se change kiye ja sakte hain.</p>
+    </div>
+    <div class="msg-template-grid">
+        <div><strong>@options.OwnerDailyReportTemplate</strong><small>7 variables: date, bills, sales, counter received, new credit, customer payments, total outstanding.</small></div>
+        <div><strong>@options.DueReminderTemplate</strong><small>4 variables: customer, amount, due date, invoice reference.</small></div>
+        <div><strong>@options.PaymentReceivedTemplate</strong><small>4 variables: customer, received amount, receipt number, remaining/clear status.</small></div>
+    </div>
+</section>
+
+@section Scripts {
+<script>
+(() => {
+    const customer = document.getElementById('manualCustomer');
+    const message = document.getElementById('manualMessage');
+    const button = document.getElementById('openWhatsApp');
+    if (!customer || !message || !button) return;
+
+    customer.addEventListener('change', () => {
+        const option = customer.selectedOptions[0];
+        if (!option?.value || message.value.trim()) return;
+        const name = option.dataset.name || 'Customer';
+        message.value = `Assalam-o-Alaikum ${name}, `;
+    });
+
+    button.addEventListener('click', () => {
+        const option = customer.selectedOptions[0];
+        const phone = option?.dataset.phone || '';
+        const text = message.value.trim();
+        if (!phone) { customer.focus(); return; }
+        if (!text) { message.focus(); return; }
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+    });
+})();
+</script>
+}

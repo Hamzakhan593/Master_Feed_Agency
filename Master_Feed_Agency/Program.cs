@@ -7,6 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// WhatsApp credentials/schedules live in a separate local file so the main appsettings
+// and database connection are never overwritten by messaging setup.
+builder.Configuration.AddJsonFile("whatsappsettings.json", optional: true, reloadOnChange: true);
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not found.");
 
@@ -84,6 +88,14 @@ builder.Services.AddScoped<CreditService>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<ReportService>();
+builder.Services.Configure<WhatsAppOptions>(builder.Configuration.GetSection("WhatsApp"));
+builder.Services.AddHttpClient("WhatsAppCloud", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(20);
+});
+builder.Services.AddScoped<WhatsAppCloudGateway>();
+builder.Services.AddScoped<WhatsAppMessagingService>();
+builder.Services.AddHostedService<WhatsAppAutomationService>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddRazorPages(options =>
@@ -195,6 +207,7 @@ app.MapGet("/health", async (ApplicationDbContext db, CancellationToken ct) =>
 
 try
 {
+    await WhatsAppSchemaInitializer.EnsureAsync(app.Services, app.Logger);
     await IdentitySeeder.SeedAsync(app.Services, builder.Configuration, app.Logger);
 }
 catch (Exception ex)
