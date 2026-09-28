@@ -372,6 +372,8 @@ public sealed class WhatsAppMessagingService
             log.TemplateName = request.TemplateName;
             log.MessagePreview = request.Preview;
             log.Recipient = recipient;
+            log.IsAutomatic = request.IsAutomatic;
+            log.CreatedByUserId = request.CreatedByUserId ?? log.CreatedByUserId;
             log.ErrorMessage = null;
             log.Status = WhatsAppMessageStatus.Pending;
         }

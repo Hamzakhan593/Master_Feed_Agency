@@ -53,8 +53,18 @@ public sealed class WhatsAppAutomationService : BackgroundService
 
         if (options.DueReminderEnabled && localNow.Hour >= ClampHour(options.DueReminderHour))
         {
-            var dueDate = localNow.Date.AddDays(Math.Max(0, options.DueReminderDaysBefore));
-            await messaging.SendDueRemindersForDateAsync(dueDate, automatic: true, cancellationToken: cancellationToken);
+            // Normal reminder is sent N days before the due date. We also check the dates between
+            // today and that target date so a reminder is not permanently missed if the app/server
+            // was temporarily offline. Deduplication inside WhatsAppMessagingService prevents repeats.
+            var daysBefore = Math.Max(0, options.DueReminderDaysBefore);
+            for (var offset = 0; offset <= daysBefore; offset++)
+            {
+                var dueDate = localNow.Date.AddDays(offset);
+                await messaging.SendDueRemindersForDateAsync(
+                    dueDate,
+                    automatic: true,
+                    cancellationToken: cancellationToken);
+            }
         }
 
         if (options.DailyOwnerReportEnabled && localNow.Hour >= ClampHour(options.DailyOwnerReportHour))
